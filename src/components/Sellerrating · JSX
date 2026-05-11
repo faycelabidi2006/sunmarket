@@ -1,0 +1,102 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { useApp } from '@/context/AppContext'
+import { supabase } from '@/lib/supabaseClient'
+ 
+function Stars({ value, onChange, size = 22 }) {
+  const [hovered, setHovered] = useState(0)
+  return (
+    <div style={{ display: 'flex', gap: 4 }}>
+      {[1,2,3,4,5].map(s => (
+        <span
+          key={s}
+          onClick={() => onChange && onChange(s)}
+          onMouseEnter={() => onChange && setHovered(s)}
+          onMouseLeave={() => onChange && setHovered(0)}
+          style={{ fontSize: size, cursor: onChange ? 'pointer' : 'default', color: s <= (hovered || value) ? '#f59e0b' : '#d1d5db', transition: 'color 0.1s' }}
+        >★</span>
+      ))}
+    </div>
+  )
+}
+ 
+export default function SellerRating({ sellerId, sellerName }) {
+  const { user, lang } = useApp()
+  const [reviews,  setReviews]  = useState([])
+  const [myRating, setMyRating] = useState(0)
+  const [myText,   setMyText]   = useState('')
+  const [sending,  setSending]  = useState(false)
+  const [done,     setDone]     = useState(false)
+ 
+  useEffect(() => {
+    if (!sellerId) return
+    supabase.from('reviews').select('*').eq('seller_id', sellerId).order('created_at', { ascending: false })
+      .then(({ data }) => { if (data) setReviews(data) })
+  }, [sellerId])
+ 
+  const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : null
+ 
+  const submit = async () => {
+    if (!myRating || !user) return
+    setSending(true)
+    const { data } = await supabase.from('reviews').insert([{
+      seller_id: sellerId, reviewer_id: user.id,
+      reviewer_name: user.user_metadata?.full_name || 'مجهول',
+      rating: myRating, comment: myText,
+    }]).select()
+    if (data?.[0]) { setReviews(prev => [data[0], ...prev]); setDone(true) }
+    setSending(false)
+  }
+ 
+  return (
+    <div style={{ marginTop: 16 }}>
+      {/* Summary */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <div style={{ fontSize: 36, fontWeight: 800, color: '#111827' }}>{avg || '—'}</div>
+        <div>
+          <Stars value={Math.round(avg || 0)} size={18} />
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 3 }}>
+            {reviews.length} {lang==='ar'?'تقييم':'avis'}
+          </div>
+        </div>
+      </div>
+ 
+      {/* Reviews list */}
+      {reviews.slice(0, 3).map(r => (
+        <div key={r.id} style={{ background: '#f9fafb', borderRadius: 10, padding: '10px 14px', marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{r.reviewer_name}</div>
+            <Stars value={r.rating} size={14} />
+          </div>
+          {r.comment && <div style={{ fontSize: 12, color: '#6b7280' }}>{r.comment}</div>}
+        </div>
+      ))}
+ 
+      {/* Add review */}
+      {user && !done && (
+        <div style={{ background: '#FFF5F5', border: '1px solid #fca5a5', borderRadius: 12, padding: 14, marginTop: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+            {lang==='ar'?'أضف تقييمك':lang==='fr'?'Votre avis':'Add Review'}
+          </div>
+          <Stars value={myRating} onChange={setMyRating} />
+          <textarea
+            value={myText}
+            onChange={e => setMyText(e.target.value)}
+            rows={2}
+            placeholder={lang==='ar'?'تعليقك (اختياري)...':'Commentaire...'}
+            style={{ marginTop: 8, width: '100%', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 10px', fontSize: 12, fontFamily: 'inherit', resize: 'none', outline: 'none' }}
+          />
+          <button
+            onClick={submit}
+            disabled={!myRating || sending}
+            style={{ marginTop: 8, background: myRating ? '#E8192C' : '#fca5a5', color: 'white', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 13, fontWeight: 700, cursor: myRating ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}
+          >
+            {sending ? '...' : lang==='ar'?'إرسال':'Envoyer'}
+          </button>
+        </div>
+      )}
+      {done && <div style={{ color: '#10b981', fontSize: 13, marginTop: 8 }}>✅ {lang==='ar'?'شكراً على تقييمك!':'Merci pour votre avis!'}</div>}
+    </div>
+  )
+}
+ 
