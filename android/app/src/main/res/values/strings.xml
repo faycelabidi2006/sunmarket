@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sun Market</string>
+    <string name="title_activity_main">Sun Market</string>
+    <string name="package_name">com.sunmarket.app</string>
+    <string name="custom_url_scheme">com.sunmarket.app</string>
+</resources>

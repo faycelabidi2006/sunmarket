@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',        // ✅ أضف هذا
+  trailingSlash: true,     // ✅ أضف هذا
+  images: {
+    unoptimized: true,     // ✅ مطلوب مع static export
+  },
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
-          { key: 'Cache-Control', value: 'no-store' }, // ✅ أضف هذا السطر فقط
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
