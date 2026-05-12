@@ -30,7 +30,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli
+        run: npm install -g @capacitor/cli@latest
 
       - name: Sync Capacitor
         run: npx cap sync android
