@@ -17,11 +17,22 @@ const COUNTRIES_LIST = [
 export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) {
   const { lang, setLang, country, setCountry, resetCountry, darkMode, setDarkMode, isAdmin } = useApp()
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
-  const [showCountrySelect,   setShowCountrySelect]   = useState(false) // ✅ جديد
+  const [showCountrySelect,   setShowCountrySelect]   = useState(false)
   const [showAdmin,           setShowAdmin]           = useState(false)
   const [showSidebar,         setShowSidebar]         = useState(false)
   const [installPrompt,       setInstallPrompt]       = useState(null)
   const [showInstall,         setShowInstall]         = useState(false)
+
+  // ✅ isMobile state مع resize listener
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
 
   useEffect(() => {
@@ -103,17 +114,19 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
             </div>
           </div>
 
-          {/* Ad space */}
-          <div style={{ flex: 1, height: 36, background: darkMode?'#2d1a1a':'#fff5f5', border: '1px dashed #fca5a5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', maxWidth: 340 }}>
-            <span style={{ fontSize: 11, color: '#E8192C', fontWeight: 600 }}>
-              📢 {lang==='ar'?'مساحة إعلانية — تواصل معنا':lang==='fr'?'Espace pub — Contactez-nous':'Ad space — Contact us'}
-            </span>
-          </div>
+          {/* Ad space - مخفي على الموبايل */}
+          {!isMobile && (
+            <div style={{ flex: 1, height: 36, background: darkMode?'#2d1a1a':'#fff5f5', border: '1px dashed #fca5a5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', maxWidth: 340 }}>
+              <span style={{ fontSize: 11, color: '#E8192C', fontWeight: 600 }}>
+                📢 {lang==='ar'?'مساحة إعلانية — تواصل معنا':lang==='fr'?'Espace pub — Contactez-nous':'Ad space — Contact us'}
+              </span>
+            </div>
+          )}
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
 
-            {/* Dark mode */}
+            {/* Dark mode - يظهر دائماً */}
             <button
               onClick={() => setDarkMode(v => !v)}
               style={{ background: darkMode?'#2d2d5e':'#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 10px', fontSize: 16, cursor: 'pointer', transition: 'all 0.2s' }}
@@ -121,11 +134,11 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
               {darkMode ? '☀️' : '🌙'}
             </button>
 
-            {/* Notification */}
+            {/* Notification - يظهر دائماً */}
             <NotificationBell />
 
-            {/* ── Country picker ── */}
-            <div style={{ position: 'relative' }}>
+            {/* ── Country picker - مخفي على الموبايل ── */}
+            <div style={{ position: 'relative', display: isMobile ? 'none' : 'block' }}>
               <button
                 onClick={() => setShowCountryDropdown(v => !v)}
                 style={{ display: 'flex', alignItems: 'center', gap: 4, border: `1.5px solid ${darkMode?'#3d3d6e':'#eee'}`, borderRadius: 20, padding: '4px 10px', background: darkMode?'#2d2d5e':'#fafafa', fontSize: 11, fontWeight: 600, color: textColor, cursor: 'pointer', fontFamily: 'inherit' }}
@@ -140,7 +153,6 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
                   <div onClick={() => setShowCountryDropdown(false)} style={{ position: 'fixed', inset: 0, zIndex: 199 }} />
                   <div style={{ position: 'absolute', top: 38, right: 0, background: darkMode?'#1e1e3f':'#fff', border: `1px solid ${darkMode?'#3d3d6e':'#eee'}`, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.18)', zIndex: 200, minWidth: 160, overflow: 'hidden' }}>
 
-                    {/* قائمة البلدان */}
                     {COUNTRIES_LIST.map(c => (
                       <div
                         key={c.code}
@@ -154,7 +166,6 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
                       </div>
                     ))}
 
-                    {/* ✅ فاصل + زر تغيير البلد الكامل */}
                     <div style={{ borderTop: `1px solid ${darkMode?'#3d3d6e':'#f0f0f0'}`, margin: '4px 0' }} />
                     <div
                       onClick={() => {
@@ -173,8 +184,8 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
               )}
             </div>
 
-            {/* Language */}
-            <div style={{ display: 'flex', gap: 2, background: darkMode?'#2d2d5e':'#f3f4f6', borderRadius: 8, padding: 3 }}>
+            {/* Language - مخفي على الموبايل */}
+            <div style={{ display: isMobile ? 'none' : 'flex', gap: 2, background: darkMode?'#2d2d5e':'#f3f4f6', borderRadius: 8, padding: 3 }}>
               {['ar','fr','en'].map(l => (
                 <button key={l} onClick={() => setLang(l)} style={{ background: lang===l?'#E8192C':'transparent', color: lang===l?'white':darkMode?'#9ca3af':'#6b7280', border: 'none', borderRadius: 6, padding: '3px 8px', fontSize: 11, cursor: 'pointer', fontWeight: lang===l?700:400, fontFamily: 'inherit' }}>
                   {l.toUpperCase()}
@@ -182,12 +193,15 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
               ))}
             </div>
 
-            {/* Login */}
-            <button onClick={onLoginClick} style={{ background: 'transparent', color: textColor, border: `1px solid ${darkMode?'#4d4d7e':'#d1d5db'}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+            {/* Login - مخفي على الموبايل */}
+            <button
+              onClick={onLoginClick}
+              style={{ display: isMobile ? 'none' : 'block', background: 'transparent', color: textColor, border: `1px solid ${darkMode?'#4d4d7e':'#d1d5db'}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
               {t(lang,'login')}
             </button>
 
-            {/* Post */}
+            {/* Post - يظهر دائماً */}
             <button onClick={onPostClick} style={{ background: '#E8192C', color: 'white', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 12, cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>
               + {t(lang,'post_ad')}
             </button>
@@ -230,7 +244,7 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
         onProfileClick={onLoginClick}
       />
 
-      {/* ✅ CountrySelect modal عند الضغط على تغيير البلد */}
+      {/* CountrySelect modal */}
       {showCountrySelect && (
         <CountrySelect
           isModal={true}
