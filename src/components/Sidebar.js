@@ -17,13 +17,23 @@ const LANGS = [
   { code: 'en', flag: '🇬🇧', label: 'English' },
 ]
 
+const COUNTRIES_LIST = [
+  { code: 'tn', flag: '🇹🇳', label: { ar: 'تونس',    fr: 'Tunisie', en: 'Tunisia' } },
+  { code: 'dz', flag: '🇩🇿', label: { ar: 'الجزائر', fr: 'Algérie', en: 'Algeria' } },
+  { code: 'ly', flag: '🇱🇾', label: { ar: 'ليبيا',   fr: 'Libye',   en: 'Libya'   } },
+  { code: 'ma', flag: '🇲🇦', label: { ar: 'المغرب',  fr: 'Maroc',   en: 'Morocco' } },
+]
+
 export default function Sidebar({ open, onClose, onCategoryChange, onPostClick, onProfileClick }) {
-  const { lang, setLang, user, setUser, resetCountry } = useApp()
-  const [showCats, setShowCats] = useState(false)
-  const [showLang, setShowLang] = useState(false)
+  const { lang, setLang, country, setCountry, user, setUser, resetCountry } = useApp()
+  const [showCats,    setShowCats]    = useState(false)
+  const [showLang,    setShowLang]    = useState(false)
+  const [showCountry, setShowCountry] = useState(false)
 
   const tr = (ar, fr, en) => lang === 'ar' ? ar : lang === 'fr' ? fr : en
   const isRTL = lang === 'ar'
+
+  const selectedCountry = COUNTRIES_LIST.find(c => c.code === country?.toLowerCase()) || COUNTRIES_LIST[0]
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -106,6 +116,28 @@ export default function Sidebar({ open, onClose, onCategoryChange, onPostClick, 
           <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8192C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>➕</div>
           <span style={{ fontSize: 14, fontWeight: 700, color: '#E8192C' }}>{tr('نشر إعلان مجاناً','Publier gratuitement','Post for Free')}</span>
         </div>
+
+        {/* البلد ✅ جديد */}
+        <div onClick={() => setShowCountry(!showCountry)}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 20px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#FFF5F5'}
+          onMouseLeave={e => e.currentTarget.style.background = 'white'}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FFF9EC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌍</div>
+          <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#111' }}>{tr('البلد','Pays','Country')}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#E8192C' }}>
+            {selectedCountry.flag} {selectedCountry.label[lang]}
+          </span>
+        </div>
+
+        {showCountry && COUNTRIES_LIST.map(c => (
+          <div key={c.code} onClick={() => { setCountry(c.code); setShowCountry(false) }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 20px 11px 56px', cursor: 'pointer', borderBottom: '1px solid #f9fafb', background: country === c.code ? '#FFF0F1' : '#fafafa' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#FFF0F1'}
+            onMouseLeave={e => e.currentTarget.style.background = country === c.code ? '#FFF0F1' : '#fafafa'}>
+            <span style={{ fontSize: 14, color: '#374151' }}>{c.flag} {c.label[lang]}</span>
+            {country === c.code && <span style={{ color: '#E8192C', fontWeight: 700 }}>✓</span>}
+          </div>
+        ))}
 
         {/* التصنيفات */}
         <div onClick={() => setShowCats(!showCats)}
