@@ -49,10 +49,9 @@ export default function CountrySelect({ isModal = false, onClose }) {
 
   // setCountry يستقبل 'tn' | 'dz' | 'ly' | 'ma' مباشرة
   const handleSelect = (code) => {
-  setCountry(code)
-  if (onClose) onClose()
-  else window.location.replace('/')
-}
+    setCountry(code)
+    if (onClose) onClose()
+  }
 
   return (
     <div style={{
@@ -72,12 +71,12 @@ export default function CountrySelect({ isModal = false, onClose }) {
         <div style={{ marginBottom: 24 }}>
           <img
             src="/logo.jpeg"
-            alt="Sun Market"
+            alt="سوقنا المغاربي"
             style={{ width: 96, height: 96, objectFit: 'contain', borderRadius: 20, display: 'block', margin: '0 auto 12px' }}
             onError={e => { e.target.style.display = 'none' }}
           />
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e', letterSpacing: 1 }}>SUN MARKET</div>
-          <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 2, marginTop: 3, textTransform: 'uppercase' }}>Your Smart Destination</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e', letterSpacing: 1 }}>سوقنا المغاربي</div>
+          <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 2, marginTop: 3, textTransform: 'uppercase' }}>وجهتك الذكية</div>
         </div>
 
         {/* ── Language ── */}

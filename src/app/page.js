@@ -527,7 +527,7 @@ export default function Home() {
         </div>
 
         <div style={{ borderTop: `1px solid ${darkMode?'#2d2d5e':'#e5e7eb'}`, paddingTop: 20, marginTop: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>© 2026 SUN MARKET</div>
+          <div style={{ fontSize: 12, color: '#9ca3af' }}>© 2026 Souqna Al Magharibi</div>
           <div style={{ fontSize: 16 }}>🇹🇳 🇩🇿 🇱🇾 🇲🇦</div>
         </div>
       </div>

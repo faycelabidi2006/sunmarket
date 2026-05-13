@@ -106,10 +106,16 @@ export default function Navbar({ onPostClick, onLoginClick, onCategoryChange }) 
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <img src="/logo.jpeg" alt="Sun Market" style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 10 }} />
+              {/* ✅ اللوجو الجديد */}
+              <img src="/logo.jpeg" alt="سوقنا المغاربي" style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: 10 }} />
               <div>
-                <div style={{ fontWeight: 800, fontSize: 15, color: textColor, lineHeight: 1 }}>SUN MARKET</div>
-                <div style={{ fontSize: 9, color: subText }}>Your Smart Destination</div>
+                {/* ✅ الاسم الجديد */}
+                <div style={{ fontWeight: 800, fontSize: 13, color: textColor, lineHeight: 1.3 }}>
+                  {lang === 'ar' ? 'سوقنا المغاربي' : 'Souqna Al Magharibi'}
+                </div>
+                <div style={{ fontSize: 9, color: subText }}>
+                  {lang === 'ar' ? 'وجهتك الذكية' : lang === 'fr' ? 'Votre destination intelligente' : 'Your Smart Destination'}
+                </div>
               </div>
             </div>
           </div>
