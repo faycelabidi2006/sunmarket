@@ -25,7 +25,6 @@ const CAR_MAKES = [
   'BYD','MG','هافال','أخرى'
 ]
  
-// ─── التصنيفات الفرعية ────────────────────────────────────────────────────────
 const SUBCATEGORIES = {
   real: {
     ar: [
@@ -105,7 +104,6 @@ const SUBCATEGORIES = {
   },
 }
  
-// ماركات الهواتف
 const PHONE_BRANDS = [
   { key: 'apple',    label: 'Apple' },
   { key: 'samsung',  label: 'Samsung' },
@@ -122,7 +120,6 @@ const PHONE_BRANDS = [
   { key: 'other',    label: 'أخرى' },
 ]
  
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const inputStyle = {
   width: '100%', background: '#f9fafb', border: '1px solid #e5e7eb',
   borderRadius: 10, padding: '10px 14px', fontSize: 14, outline: 'none',
@@ -137,7 +134,6 @@ const AD_BANNERS = [
   { bg: 'linear-gradient(135deg,#10b981,#059669)', emoji: '🏆', title: { ar: 'إعلانات مميزة بأسعار خاصة', fr: 'Annonces premium', en: 'Premium ads' }, sub: { ar: 'وصول أكبر، مبيعات أسرع', fr: 'Plus de portée, ventes rapides', en: 'More reach, faster sales' }, btn: { ar: 'اعرف أكثر', fr: 'En savoir plus', en: 'Learn more' } },
 ]
  
-// ─── Helper Components ────────────────────────────────────────────────────────
 function PillSelect({ options, value, onChange }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -219,9 +215,10 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
         </div>
         <div style={{ fontSize: 11, color: '#9ca3af' }}>{featured.length} {lang==='ar'?'إعلان':'ad'}</div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
+      {/* ✅ Featured أيضاً horizontal scroll */}
+      <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {featured.map(l => (
-          <div key={l.id} style={{ position: 'relative' }}>
+          <div key={l.id} style={{ position: 'relative', flexShrink: 0, width: 240 }}>
             <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, background: 'linear-gradient(135deg,#EF9F27,#f59e0b)', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>⭐ مميز</div>
             <ListingCard listing={l} currency={currency} allListings={listings} onDelete={onDelete} />
           </div>
@@ -230,6 +227,41 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
     </div>
   )
 }
+
+// ✅ مكون السحب الأفقي لكل قسم
+function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, onDelete }) {
+  if (listings.length === 0) return null
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <SectionHeader
+        title={`${section.icon} ${section.label}`}
+        count={listings.length}
+        onSeeAll={onSeeAll}
+        lang={lang}
+        dark={dark}
+      />
+      {/* السحب يمين/يسار */}
+      <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
+        {listings.slice(0, 10).map(l => (
+          <div key={l.id} style={{ flexShrink: 0, width: 220 }}>
+            <ListingCard listing={l} currency={currency} allListings={listings} onDelete={onDelete} />
+          </div>
+        ))}
+        {/* زر See All في نهاية الصف */}
+        {listings.length > 10 && (
+          <div
+            onClick={onSeeAll}
+            style={{ flexShrink: 0, width: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: dark?'#2d2d5e':'#f3f4f6', borderRadius: 16, cursor: 'pointer', gap: 8, color: '#E8192C', fontWeight: 700, fontSize: 13 }}
+          >
+            <div style={{ fontSize: 24 }}>←</div>
+            <div>{lang==='ar'?'عرض الكل':lang==='fr'?'Voir tout':'See All'}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
   const { lang, user, country, loading, darkMode } = useApp()
@@ -241,7 +273,6 @@ export default function Home() {
   const [showProfileModal, setShowProfileModal]   = useState(false)
   const [postStep,         setPostStep]           = useState(1)
   const [filterParams,     setFilterParams]       = useState({})
-  // Form fields
   const [category,        setCategory]        = useState('')
   const [subcategory,     setSubcategory]     = useState('')
   const [phoneBrand,      setPhoneBrand]      = useState('')
@@ -415,19 +446,18 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100vh', background: bg, direction: dir, transition: 'background 0.3s' }}>
       <Navbar onPostClick={handlePostClick} onLoginClick={() => setShowAuthModal(true)} onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }} />
-    <Hero
-  onSearch={(text, cat) => { setSearchQuery(text); setActiveCategory(cat||'all') }}
-  onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }}
-  onFilter={setFilterParams}
-  regions={regions}
-/>  
+      <Hero
+        onSearch={(text, cat) => { setSearchQuery(text); setActiveCategory(cat||'all') }}
+        onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }}
+        onFilter={setFilterParams}
+        regions={regions}
+      />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px 180px' }}>
         {activeCategory === 'all' && searchQuery === '' && (
-<FeaturedStrip listings={listings} currency={currency} lang={lang} dark={darkMode} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />
-)}
- 
- 
+          <FeaturedStrip listings={listings} currency={currency} lang={lang} dark={darkMode} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />
+        )}
+
         {searchQuery !== '' && (
           <div style={{ background: '#FFF0F1', border: '1px solid #fca5a5', borderRadius: 10, padding: '10px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ color: '#374151', fontSize: 13 }}>
@@ -436,8 +466,9 @@ export default function Home() {
             <button onClick={() => setSearchQuery('')} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: 18 }}>✕</button>
           </div>
         )}
- 
+
         {(activeCategory !== 'all' || searchQuery !== '') ? (
+          // ── عرض فئة محددة أو نتائج بحث: شبكة عمودية ──
           <div>
             <SectionHeader
               title={activeCategory!=='all' ? SECTIONS.find(s=>s.key===activeCategory)?.label||activeCategory : (lang==='ar'?'نتائج البحث':'Résultats')}
@@ -453,33 +484,38 @@ export default function Home() {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
-               {filtered.map(l => <ListingCard key={l.id} listing={l} currency={currency} allListings={listings} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />)}
+                {filtered.map(l => <ListingCard key={l.id} listing={l} currency={currency} allListings={listings} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />)}
               </div>
             )}
           </div>
         ) : (
+          // ── الصفحة الرئيسية: كل قسم horizontal scroll ──
           <div>
             {listLoading ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>⏳ {lang==='ar'?'جاري التحميل...':'Chargement...'}</div>
             ) : (
               SECTIONS.map((section, idx) => {
                 const sectionListings = applyFilter(listings.filter(l => l.type === section.key))
-                if (sectionListings.length === 0) return null
                 return (
                   <div key={section.key}>
                     {idx > 0 && idx % 2 === 0 && <AdBanner index={Math.floor(idx/2)-1} lang={lang} />}
-                    <div style={{ marginBottom: 32 }}>
-                      <SectionHeader title={`${section.icon} ${section.label}`} count={sectionListings.length} onSeeAll={() => setActiveCategory(section.key)} lang={lang} dark={darkMode} />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
-                       {sectionListings.slice(0, 4).map(l => <ListingCard key={l.id} listing={l} currency={currency} allListings={listings} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />)}                    </div>
-               </div>
+                    {/* ✅ horizontal scroll لكل قسم */}
+                    <HorizontalSection
+                      section={section}
+                      listings={sectionListings}
+                      currency={currency}
+                      lang={lang}
+                      dark={darkMode}
+                      onSeeAll={() => setActiveCategory(section.key)}
+                      onDelete={id => setListings(prev => prev.filter(item => item.id !== id))}
+                    />
                   </div>
                 )
               })
             )}
           </div>
         )}
- 
+
         <div style={{ background: 'linear-gradient(135deg,#E8192C,#c0392b)', borderRadius: 16, padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, boxShadow: '0 8px 24px rgba(232,25,44,0.3)' }}>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'white', marginBottom: 5 }}>{t(lang,'publish_free')}</div>
@@ -489,14 +525,13 @@ export default function Home() {
             {t(lang,'publish_now')} ←
           </button>
         </div>
- 
+
         <div style={{ borderTop: `1px solid ${darkMode?'#2d2d5e':'#e5e7eb'}`, paddingTop: 20, marginTop: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 12, color: '#9ca3af' }}>© 2026 SUN MARKET</div>
           <div style={{ fontSize: 16 }}>🇹🇳 🇩🇿 🇱🇾 🇲🇦</div>
         </div>
       </div>
-       
- 
+
       {showAuthModal    && <AuthModal    onClose={() => setShowAuthModal(false)} />}
       {showProfileModal && <ProfileModal onClose={() => setShowProfileModal(false)} />}
       <BottomNav
@@ -504,13 +539,14 @@ export default function Home() {
         onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }}
         onLoginClick={() => setShowProfileModal(true)}
       />
+
       {/* ─── POST MODAL ─── */}
       {showPostModal && (
         <div onClick={e => e.target===e.currentTarget && setShowPostModal(false)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 16 }}
         >
           <div style={{ background: 'white', borderRadius: 18, padding: 24, width: '100%', maxWidth: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto', direction: dir }}>
- 
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <div style={{ fontSize: 17, fontWeight: 800, color: '#111827' }}>{t(lang,'post_new_ad')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -519,11 +555,9 @@ export default function Home() {
               </div>
             </div>
             <StepBar step={postStep} total={3} />
- 
-            {/* ── STEP 1 ── */}
+
             {postStep === 1 && (
               <div>
-                {/* نوع الإعلان */}
                 <div style={fieldWrap}>
                   <label style={labelStyle}>{t(lang,'ad_type')} *</label>
                   <select value={category} onChange={e => { setCategory(e.target.value); setSubcategory(''); setPhoneBrand(''); setTitle('') }} style={inputStyle}>
@@ -535,24 +569,21 @@ export default function Home() {
                     <option value="parts">🔧 {t(lang,'cat_parts')}</option>
                   </select>
                 </div>
- 
-                {/* ── تصنيف فرعي العقار ── */}
+
                 {isReal && (
                   <div style={fieldWrap}>
                     <label style={labelStyle}>{lang==='ar'?'نوع العقار':lang==='fr'?'Type de bien':'Property Type'} *</label>
                     <SubcategoryGrid options={SUBCATEGORIES.real[lang]||SUBCATEGORIES.real.ar} value={subcategory} onChange={setSubcategory} />
                   </div>
                 )}
- 
-                {/* ── تصنيف فرعي الإلكترونيات ── */}
+
                 {isElectronics && (
                   <div style={fieldWrap}>
                     <label style={labelStyle}>{lang==='ar'?'نوع الجهاز':lang==='fr'?'Type d\'appareil':'Device Type'} *</label>
                     <SubcategoryGrid options={SUBCATEGORIES.electronics[lang]||SUBCATEGORIES.electronics.ar} value={subcategory} onChange={v => { setSubcategory(v); setPhoneBrand('') }} />
                   </div>
                 )}
- 
-                {/* ── ماركة الهاتف ── */}
+
                 {isMobilePhone && (
                   <div style={fieldWrap}>
                     <label style={labelStyle}>{lang==='ar'?'الماركة':lang==='fr'?'Marque':'Brand'} *</label>
@@ -565,8 +596,7 @@ export default function Home() {
                     </div>
                   </div>
                 )}
- 
-                {/* ── حقول السيارة ── */}
+
                 {isCarCategory && (
                   <>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -625,16 +655,14 @@ export default function Home() {
                     )}
                   </>
                 )}
- 
-                {/* عنوان الإعلان */}
+
                 {!isCarCategory && category && (
                   <div style={fieldWrap}>
                     <label style={labelStyle}>{t(lang,'ad_title')} *</label>
                     <input value={title} onChange={e => setTitle(e.target.value)} style={inputStyle} placeholder={t(lang,'ad_title_ph')} />
                   </div>
                 )}
- 
-                {/* المنطقة والسعر */}
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div>
                     <label style={labelStyle}>{t(lang,'region')} *</label>
@@ -648,8 +676,7 @@ export default function Home() {
                     <input type="number" value={price} onChange={e => setPrice(e.target.value)} style={inputStyle} placeholder="0" min="0" />
                   </div>
                 </div>
- 
-                {/* مميز */}
+
                 <div onClick={() => setIsFeatured(v => !v)}
                   style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10, background: isFeatured?'#FFFBEB':'#f9fafb', border: `1.5px solid ${isFeatured?'#f59e0b':'#e5e7eb'}`, borderRadius: 10, padding: '10px 14px', cursor: 'pointer' }}
                 >
@@ -661,12 +688,11 @@ export default function Home() {
                     <div style={{ fontSize: 11, color: '#9ca3af' }}>{lang==='ar'?'يظهر في الأعلى دائماً':'Toujours en haut'}</div>
                   </div>
                 </div>
- 
+
                 <div style={{ marginTop: 10, fontSize: 11, color: '#9ca3af' }}>{t(lang,'required_fields')}</div>
               </div>
             )}
- 
-            {/* ── STEP 2 ── */}
+
             {postStep === 2 && (
               <div>
                 <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
@@ -683,7 +709,7 @@ export default function Home() {
                     </>
                   )}
                 </div>
- 
+
                 {imageUrls.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                     {imageUrls.map((url, i) => (
@@ -694,7 +720,7 @@ export default function Home() {
                     ))}
                   </div>
                 )}
- 
+
                 <div style={fieldWrap}>
                   <label style={labelStyle}>{t(lang,'description')}</label>
                   <textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} style={{ ...inputStyle, resize: 'none' }} placeholder={t(lang,'description_ph')} />
@@ -714,8 +740,7 @@ export default function Home() {
                 )}
               </div>
             )}
- 
-            {/* ── STEP 3 success ── */}
+
             {postStep === 3 && (
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
                 <div style={{ fontSize: 60, marginBottom: 14 }}>✅</div>
@@ -723,8 +748,7 @@ export default function Home() {
                 <div style={{ fontSize: 13, color: '#6b7280' }}>{t(lang,'success_subtitle')}</div>
               </div>
             )}
- 
-            {/* Buttons */}
+
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
               {postStep < 3 && (
                 <button onClick={() => postStep > 1 ? setPostStep(s => s-1) : setShowPostModal(false)}
