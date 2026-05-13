@@ -388,13 +388,26 @@ export default function Home() {
 
   // ✅ دالة رفع صورة واحدة على Supabase
   const uploadBlobToSupabase = async (blob, ext) => {
-    const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage
-      .from('listing-images')
-      .upload(path, blob, { cacheControl: '3600', upsert: false })
-    if (error) return null
-    const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
-    return data.publicUrl
+    try {
+      const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
+      const { error } = await supabase.storage
+        .from('listing-images')
+        .upload(path, blob, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType,
+        })
+      if (error) {
+        console.error('Supabase upload error:', error.message)
+        return null
+      }
+      const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(path)
+      return urlData.publicUrl
+    } catch (err) {
+      console.error('uploadBlobToSupabase exception:', err)
+      return null
+    }
   }
 
   // ✅ APK: يفتح الكاميرا مباشرة للتصوير، ثم يرفع على Supabase
@@ -405,19 +418,26 @@ export default function Home() {
       // طلب صلاحية الكاميرا
       await Camera.requestPermissions({ permissions: ['camera', 'photos'] })
 
-      // تصوير صورة من الكاميرا مباشرة
+      // تصوير صورة من الكاميرا مباشرة - Base64 أكثر موثوقية على APK
       const photo = await Camera.getPhoto({
         quality: 85,
         allowEditing: false,
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera, // ✅ يفتح الكاميرا مباشرة
-        saveToGallery: true,         // ✅ يحفظ في الغاليري
+        resultType: CameraResultType.Base64, // ✅ Base64 بدل Uri
+        source: CameraSource.Camera,
+        saveToGallery: true,
       })
 
-      const response = await fetch(photo.webPath)
-      const blob = await response.blob()
-      const ext = photo.format || 'jpg'
-      const url = await uploadBlobToSupabase(blob, ext)
+      // ✅ تحويل base64 إلى blob ورفعه على Supabase
+      const base64Data = photo.base64String
+      const byteCharacters = atob(base64Data)
+      const byteNumbers = new Array(byteCharacters.length)
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      const byteArray = new Uint8Array(byteNumbers)
+      const blob = new Blob([byteArray], { type: 'image/jpeg' })
+
+      const url = await uploadBlobToSupabase(blob, 'jpg')
       if (url) uploaded.push(url)
 
     } catch (err) {
