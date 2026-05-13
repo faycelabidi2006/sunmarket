@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useApp } from '@/context/AppContext'
+import { Capacitor } from '@capacitor/core'
 
 export default function AuthModal({ onClose }) {
   const { lang } = useApp()
@@ -43,13 +44,34 @@ export default function AuthModal({ onClose }) {
     setLoading(false)
   }
 
-  // ── Google ──
+  // ── Google ── مع دعم Capacitor
   const handleGoogle = async () => {
     setLoadingGoogle(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    })
+    setError('')
+    try {
+      // إذا APK (Capacitor) استخدم GoogleAuth plugin
+      if (Capacitor.isNativePlatform()) {
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth')
+        await GoogleAuth.initialize()
+        const googleUser = await GoogleAuth.signIn()
+        const idToken = googleUser.authentication.idToken
+
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        })
+        if (error) throw error
+        onClose()
+      } else {
+        // موقع عادي - استخدم OAuth redirect
+        await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin },
+        })
+      }
+    } catch (err) {
+      setError(lang === 'ar' ? 'فشل تسجيل الدخول بـ Google' : 'Google sign-in failed')
+    }
     setLoadingGoogle(false)
   }
 
@@ -214,7 +236,6 @@ export default function AuthModal({ onClose }) {
               </div>
             </div>
 
-            {/* ✅ نسيت كلمة المرور — تظهر فقط في وضع تسجيل الدخول */}
             {isLogin && (
               <div style={{ textAlign: 'left', marginBottom: 20 }}>
                 <span
