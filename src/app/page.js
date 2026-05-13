@@ -15,10 +15,10 @@ import GoogleAdBanner from '@/components/GoogleAdBanner'
 import AdvancedFilter from '@/components/AdvancedFilter'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { Capacitor } from '@capacitor/core'
- 
+
 const currentYear = new Date().getFullYear()
 const YEARS = Array.from({ length: 35 }, (_, i) => currentYear - i)
- 
+
 const CAR_MAKES = [
   'تويوتا','هوندا','نيسان','هيونداي','كيا','فولكسفاغن','رينو','بيجو','سيتروين',
   'فورد','شيفروليه','مرسيدس','بي ام دبليو','أودي','فيات','أوبل','ميتسوبيشي',
@@ -26,7 +26,7 @@ const CAR_MAKES = [
   'بورش','فولفو','إنفينيتي','أكيورا','كاديلاك','شيري','جيلي',
   'BYD','MG','هافال','أخرى'
 ]
- 
+
 const SUBCATEGORIES = {
   real: {
     ar: [
@@ -105,7 +105,7 @@ const SUBCATEGORIES = {
     ],
   },
 }
- 
+
 const PHONE_BRANDS = [
   { key: 'apple',    label: 'Apple' },
   { key: 'samsung',  label: 'Samsung' },
@@ -121,7 +121,7 @@ const PHONE_BRANDS = [
   { key: 'motorola', label: 'Motorola' },
   { key: 'other',    label: 'أخرى' },
 ]
- 
+
 const inputStyle = {
   width: '100%', background: '#f9fafb', border: '1px solid #e5e7eb',
   borderRadius: 10, padding: '10px 14px', fontSize: 14, outline: 'none',
@@ -129,13 +129,13 @@ const inputStyle = {
 }
 const labelStyle = { fontSize: 12, color: '#6b7280', display: 'block', marginBottom: 6, fontWeight: 600 }
 const fieldWrap  = { marginBottom: 16 }
- 
+
 const AD_BANNERS = [
   { bg: 'linear-gradient(135deg,#1a2740,#2d3f5c)', emoji: '🚀', title: { ar: 'أعلن معنا واصل لآلاف المشترين', fr: 'Annoncez avec nous', en: 'Advertise with us' }, sub: { ar: 'أسعار مناسبة لجميع الميزانيات', fr: 'Prix pour tous les budgets', en: 'Prices for all budgets' }, btn: { ar: 'تواصل معنا', fr: 'Nous contacter', en: 'Contact us' } },
   { bg: 'linear-gradient(135deg,#E8192C,#993556)', emoji: '📢', title: { ar: 'هل لديك منتج للبيع؟', fr: 'Vous avez quelque chose à vendre?', en: 'Have something to sell?' }, sub: { ar: 'انشر إعلانك مجاناً الآن', fr: 'Publiez gratuitement', en: 'Post your ad for free' }, btn: { ar: 'نشر إعلان', fr: 'Publier', en: 'Post Ad' } },
   { bg: 'linear-gradient(135deg,#10b981,#059669)', emoji: '🏆', title: { ar: 'إعلانات مميزة بأسعار خاصة', fr: 'Annonces premium', en: 'Premium ads' }, sub: { ar: 'وصول أكبر، مبيعات أسرع', fr: 'Plus de portée, ventes rapides', en: 'More reach, faster sales' }, btn: { ar: 'اعرف أكثر', fr: 'En savoir plus', en: 'Learn more' } },
 ]
- 
+
 function PillSelect({ options, value, onChange }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -147,7 +147,7 @@ function PillSelect({ options, value, onChange }) {
     </div>
   )
 }
- 
+
 function SubcategoryGrid({ options, value, onChange }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
@@ -162,7 +162,7 @@ function SubcategoryGrid({ options, value, onChange }) {
     </div>
   )
 }
- 
+
 function StepBar({ step, total }) {
   return (
     <div style={{ display: 'flex', gap: 6, marginBottom: 22 }}>
@@ -172,7 +172,7 @@ function StepBar({ step, total }) {
     </div>
   )
 }
- 
+
 function SectionHeader({ title, count, onSeeAll, lang, dark }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -189,7 +189,7 @@ function SectionHeader({ title, count, onSeeAll, lang, dark }) {
     </div>
   )
 }
- 
+
 function AdBanner({ index, lang }) {
   const ad = AD_BANNERS[index % AD_BANNERS.length]
   return (
@@ -205,7 +205,7 @@ function AdBanner({ index, lang }) {
     </div>
   )
 }
- 
+
 function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
   const featured = listings.filter(l => l.featured)
   if (featured.length === 0) return null
@@ -263,7 +263,7 @@ function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
   const { lang, user, country, loading, darkMode } = useApp()
- 
+
   const [activeCategory,   setActiveCategory]   = useState('all')
   const [searchQuery,      setSearchQuery]       = useState('')
   const [showPostModal,    setShowPostModal]      = useState(false)
@@ -290,22 +290,22 @@ export default function Home() {
   const [carBody,         setCarBody]         = useState('')
   const [carColor,        setCarColor]        = useState('')
   const [isFeatured,      setIsFeatured]      = useState(false)
- 
+
   const [imageUrls,      setImageUrls]      = useState([])
   const [imageUploading, setImageUploading] = useState(false)
   const fileInputRef = useRef(null)
- 
+
   const [listings,     setListings]     = useState([])
   const [listLoading,  setListLoading]  = useState(false)
   const [publishing,   setPublishing]   = useState(false)
   const [publishError, setPublishError] = useState('')
- 
+
   const currentCountry = useMemo(() => country ? COUNTRIES[country.toLowerCase()] : null, [country])
   const currency       = useMemo(() => currentCountry?.currency?.[lang] || 'د.ت', [currentCountry, lang])
   const regions        = useMemo(() => currentCountry?.regions || [], [currentCountry])
- 
+
   const bg = darkMode ? '#0f172a' : '#f8f9fa'
- 
+
   useEffect(() => {
     if (!country) return
     setListings([])
@@ -318,21 +318,21 @@ export default function Home() {
     }, 300)
     return () => clearTimeout(timer)
   }, [country])
- 
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ color: '#E8192C', fontSize: 32 }}>⏳</div>
     </div>
   )
- 
+
   if (!country) return <CountrySelect onClose={() => window.location.replace('/')} />
- 
+
   const isCarCategory = category === 'car' || category === 'rent'
   const isElectronics = category === 'electronics'
   const isReal        = category === 'real'
   const isMobilePhone = subcategory === 'elec_mobile'
   const dir           = lang === 'ar' ? 'rtl' : 'ltr'
- 
+
   const FUEL_OPTIONS = [
     { key: 'petrol', label: 'بنزين' }, { key: 'diesel', label: 'ديزل' },
     { key: 'hybrid', label: 'هجين' }, { key: 'electric', label: 'كهربائي' }, { key: 'gpl', label: 'GPL' },
@@ -348,7 +348,7 @@ export default function Home() {
     { key: 'sedan', label: 'سيدان' }, { key: 'hatch', label: 'هاتشباك' }, { key: 'suv', label: 'SUV' },
     { key: 'pickup', label: 'بيكاب' }, { key: 'van', label: 'فان' }, { key: 'coupe', label: 'كوبيه' },
   ]
- 
+
   const SECTIONS = [
     { key: 'car',         icon: '🚗', label: lang==='ar'?'سيارات للبيع':lang==='fr'?'Voitures à vendre':'Cars for Sale' },
     { key: 'rent',        icon: '🔑', label: lang==='ar'?'تأجير سيارات':lang==='fr'?'Location de voitures':'Car Rental' },
@@ -356,7 +356,7 @@ export default function Home() {
     { key: 'real',        icon: '🏠', label: lang==='ar'?'عقارات':lang==='fr'?'Immobilier':'Real Estate' },
     { key: 'parts',       icon: '🔧', label: lang==='ar'?'قطع غيار':lang==='fr'?'Pièces détachées':'Spare Parts' },
   ]
- 
+
   const applyFilter = (list) => list.filter(l => {
     if (filterParams.minPrice  && Number(l.price)    < Number(filterParams.minPrice))  return false
     if (filterParams.maxPrice  && Number(l.price)    > Number(filterParams.maxPrice))  return false
@@ -367,13 +367,13 @@ export default function Home() {
     if (filterParams.maxYear   && Number(l.car_year) > Number(filterParams.maxYear))   return false
     return true
   })
- 
+
   const filtered = applyFilter(
     listings
       .filter(l => activeCategory === 'all' || l.type === activeCategory)
       .filter(l => searchQuery === '' || l.title?.toLowerCase().includes(searchQuery.toLowerCase()) || l.location?.includes(searchQuery))
   )
- 
+
   const handlePostClick = () => {
     if (!user) { setShowAuthModal(true) }
     else {
@@ -386,54 +386,94 @@ export default function Home() {
     }
   }
 
-  // ✅ handleImageChange: Capacitor (APK) أو متصفح عادي (لابتوب/ويب)
-  const handleImageChange = async (e) => {
+  // ✅ دالة رفع صورة واحدة على Supabase
+  const uploadBlobToSupabase = async (blob, ext) => {
+    const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage
+      .from('listing-images')
+      .upload(path, blob, { cacheControl: '3600', upsert: false })
+    if (error) return null
+    const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
+    return data.publicUrl
+  }
+
+  // ✅ APK: يفتح الكاميرا مباشرة للتصوير، ثم يرفع على Supabase
+  const handleNativeCamera = async () => {
     setImageUploading(true)
     const uploaded = []
-
     try {
-      if (Capacitor.isNativePlatform()) {
-        // ── APK: استخدم Capacitor Camera ──
-        const result = await Camera.pickImages({
-          quality: 80,
-          limit: 5,
-        })
+      // طلب صلاحية الكاميرا
+      await Camera.requestPermissions({ permissions: ['camera', 'photos'] })
 
-        for (const photo of result.photos) {
-          const response = await fetch(photo.webPath)
-          const blob = await response.blob()
-          const ext = photo.format || 'jpg'
-          const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-          const { error } = await supabase.storage.from('listing-images').upload(path, blob, { cacheControl: '3600', upsert: false })
-          if (!error) {
-            const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
-            uploaded.push(data.publicUrl)
-          }
-        }
-      } else {
-        // ── متصفح (لابتوب/ويب): input file عادي ──
-        const files = Array.from(e.target.files)
-        for (const file of files) {
-          const ext = file.name.split('.').pop()
-          const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-          const { error } = await supabase.storage.from('listing-images').upload(path, file, { cacheControl: '3600', upsert: false })
-          if (!error) {
-            const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
-            uploaded.push(data.publicUrl)
-          }
-        }
+      // تصوير صورة من الكاميرا مباشرة
+      const photo = await Camera.getPhoto({
+        quality: 85,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera, // ✅ يفتح الكاميرا مباشرة
+        saveToGallery: true,         // ✅ يحفظ في الغاليري
+      })
+
+      const response = await fetch(photo.webPath)
+      const blob = await response.blob()
+      const ext = photo.format || 'jpg'
+      const url = await uploadBlobToSupabase(blob, ext)
+      if (url) uploaded.push(url)
+
+    } catch (err) {
+      console.error('Camera error:', err)
+    }
+    setImageUrls(prev => [...prev, ...uploaded])
+    setImageUploading(false)
+  }
+
+  // ✅ APK: يفتح الغاليري لاختيار أكثر من صورة، ثم يرفع على Supabase
+  const handleNativeGallery = async () => {
+    setImageUploading(true)
+    const uploaded = []
+    try {
+      await Camera.requestPermissions({ permissions: ['photos'] })
+
+      const result = await Camera.pickImages({
+        quality: 85,
+        limit: 5,
+      })
+
+      for (const photo of result.photos) {
+        const response = await fetch(photo.webPath)
+        const blob = await response.blob()
+        const ext = photo.format || 'jpg'
+        const url = await uploadBlobToSupabase(blob, ext)
+        if (url) uploaded.push(url)
       }
     } catch (err) {
-      console.error('Image upload error:', err)
+      console.error('Gallery error:', err)
     }
+    setImageUrls(prev => [...prev, ...uploaded])
+    setImageUploading(false)
+  }
 
+  // ✅ متصفح (ويب/لابتوب): input file عادي
+  const handleWebImageChange = async (e) => {
+    setImageUploading(true)
+    const uploaded = []
+    try {
+      const files = Array.from(e.target.files)
+      for (const file of files) {
+        const ext = file.name.split('.').pop()
+        const url = await uploadBlobToSupabase(file, ext)
+        if (url) uploaded.push(url)
+      }
+    } catch (err) {
+      console.error('Web upload error:', err)
+    }
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
     if (e?.target) e.target.value = ''
   }
- 
+
   const removeImage = (idx) => setImageUrls(prev => prev.filter((_, i) => i !== idx))
- 
+
   const canProceedStep1 = () => {
     if (!category || !region || !price) return false
     if (isReal        && !subcategory)                              return false
@@ -442,7 +482,7 @@ export default function Home() {
     if (isCarCategory) return !!(carMake && carYear && carMileage && carFuel && carGearbox)
     return !!title
   }
- 
+
   const handleNext = async () => {
     if (postStep === 1 && !canProceedStep1()) return
     if (postStep === 2) {
@@ -467,7 +507,7 @@ export default function Home() {
     if (postStep < 3) setPostStep(s => s + 1)
     else setShowPostModal(false)
   }
- 
+
   return (
     <div style={{ minHeight: '100vh', background: bg, direction: dir, transition: 'background 0.3s' }}>
       <Navbar onPostClick={handlePostClick} onLoginClick={() => setShowAuthModal(true)} onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }} />
@@ -717,31 +757,69 @@ export default function Home() {
 
             {postStep === 2 && (
               <div>
-                {/* ✅ input file مخفي للمتصفح فقط */}
-                <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
+                {/* ✅ input file مخفي للويب فقط */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={handleWebImageChange}
+                />
 
-                {/* ✅ زر الصور: يفتح Capacitor في APK، وfile picker في المتصفح */}
-                <div
-                  onClick={() => {
-                    if (Capacitor.isNativePlatform()) {
-                      handleImageChange({})
-                    } else {
-                      fileInputRef.current?.click()
-                    }
-                  }}
-                  style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: '#f9fafb', color: '#9ca3af' }}
-                >
-                  {imageUploading ? (
-                    <div style={{ color: '#E8192C' }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: 28, marginBottom: 6 }}>📷</div>
-                      <div style={{ fontSize: 13 }}>{t(lang,'add_photos')}</div>
-                      <div style={{ fontSize: 11, marginTop: 4, color: '#d1d5db' }}>{lang==='ar'?'اضغط لاختيار صور':'Tap to choose images'}</div>
-                    </>
-                  )}
-                </div>
+                {/* ✅ زرين: كاميرا + غاليري على APK | زر واحد على الويب */}
+                {Capacitor.isNativePlatform() ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                    {/* زر الكاميرا */}
+                    <div
+                      onClick={!imageUploading ? handleNativeCamera : undefined}
+                      style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
+                    >
+                      {imageUploading ? (
+                        <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 28, marginBottom: 6 }}>📸</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'التقاط صورة':lang==='fr'?'Prendre photo':'Take Photo'}</div>
+                          <div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'فتح الكاميرا':'Open Camera'}</div>
+                        </>
+                      )}
+                    </div>
+                    {/* زر الغاليري */}
+                    <div
+                      onClick={!imageUploading ? handleNativeGallery : undefined}
+                      style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
+                    >
+                      {imageUploading ? (
+                        <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'من الغاليري':lang==='fr'?'Galerie':'From Gallery'}</div>
+                          <div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'اختر حتى 5 صور':'Up to 5 photos'}</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* زر الويب */
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: '#f9fafb', color: '#9ca3af' }}
+                  >
+                    {imageUploading ? (
+                      <div style={{ color: '#E8192C' }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 28, marginBottom: 6 }}>📷</div>
+                        <div style={{ fontSize: 13 }}>{t(lang,'add_photos')}</div>
+                        <div style={{ fontSize: 11, marginTop: 4, color: '#d1d5db' }}>{lang==='ar'?'اضغط لاختيار صور':'Click to choose images'}</div>
+                      </>
+                    )}
+                  </div>
+                )}
 
+                {/* ✅ عرض الصور المرفوعة */}
                 {imageUrls.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                     {imageUrls.map((url, i) => (
