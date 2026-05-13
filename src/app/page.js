@@ -13,6 +13,8 @@ import CountrySelect from '@/components/CountrySelect'
 import ProfileModal from '@/components/ProfileModal'
 import GoogleAdBanner from '@/components/GoogleAdBanner'
 import AdvancedFilter from '@/components/AdvancedFilter'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
+import { Capacitor } from '@capacitor/core'
  
 const currentYear = new Date().getFullYear()
 const YEARS = Array.from({ length: 35 }, (_, i) => currentYear - i)
@@ -215,7 +217,6 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
         </div>
         <div style={{ fontSize: 11, color: '#9ca3af' }}>{featured.length} {lang==='ar'?'إعلان':'ad'}</div>
       </div>
-      {/* ✅ Featured أيضاً horizontal scroll */}
       <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {featured.map(l => (
           <div key={l.id} style={{ position: 'relative', flexShrink: 0, width: 240 }}>
@@ -228,7 +229,6 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
   )
 }
 
-// ✅ مكون السحب الأفقي لكل قسم
 function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, onDelete }) {
   if (listings.length === 0) return null
   return (
@@ -240,14 +240,12 @@ function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, 
         lang={lang}
         dark={dark}
       />
-      {/* السحب يمين/يسار */}
       <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
         {listings.slice(0, 10).map(l => (
           <div key={l.id} style={{ flexShrink: 0, width: 220 }}>
             <ListingCard listing={l} currency={currency} allListings={listings} onDelete={onDelete} />
           </div>
         ))}
-        {/* زر See All في نهاية الصف */}
         {listings.length > 10 && (
           <div
             onClick={onSeeAll}
@@ -387,24 +385,51 @@ export default function Home() {
       setShowPostModal(true); setPostStep(1)
     }
   }
- 
+
+  // ✅ handleImageChange: Capacitor (APK) أو متصفح عادي (لابتوب/ويب)
   const handleImageChange = async (e) => {
-    const files = Array.from(e.target.files)
-    if (!files.length) return
     setImageUploading(true)
     const uploaded = []
-    for (const file of files) {
-      const ext  = file.name.split('.').pop()
-      const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from('listing-images').upload(path, file, { cacheControl: '3600', upsert: false })
-      if (!error) {
-        const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
-        uploaded.push(data.publicUrl)
+
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // ── APK: استخدم Capacitor Camera ──
+        const result = await Camera.pickImages({
+          quality: 80,
+          limit: 5,
+        })
+
+        for (const photo of result.photos) {
+          const response = await fetch(photo.webPath)
+          const blob = await response.blob()
+          const ext = photo.format || 'jpg'
+          const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+          const { error } = await supabase.storage.from('listing-images').upload(path, blob, { cacheControl: '3600', upsert: false })
+          if (!error) {
+            const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
+            uploaded.push(data.publicUrl)
+          }
+        }
+      } else {
+        // ── متصفح (لابتوب/ويب): input file عادي ──
+        const files = Array.from(e.target.files)
+        for (const file of files) {
+          const ext = file.name.split('.').pop()
+          const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+          const { error } = await supabase.storage.from('listing-images').upload(path, file, { cacheControl: '3600', upsert: false })
+          if (!error) {
+            const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
+            uploaded.push(data.publicUrl)
+          }
+        }
       }
+    } catch (err) {
+      console.error('Image upload error:', err)
     }
+
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
-    e.target.value = ''
+    if (e?.target) e.target.value = ''
   }
  
   const removeImage = (idx) => setImageUrls(prev => prev.filter((_, i) => i !== idx))
@@ -468,7 +493,6 @@ export default function Home() {
         )}
 
         {(activeCategory !== 'all' || searchQuery !== '') ? (
-          // ── عرض فئة محددة أو نتائج بحث: شبكة عمودية ──
           <div>
             <SectionHeader
               title={activeCategory!=='all' ? SECTIONS.find(s=>s.key===activeCategory)?.label||activeCategory : (lang==='ar'?'نتائج البحث':'Résultats')}
@@ -489,7 +513,6 @@ export default function Home() {
             )}
           </div>
         ) : (
-          // ── الصفحة الرئيسية: كل قسم horizontal scroll ──
           <div>
             {listLoading ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>⏳ {lang==='ar'?'جاري التحميل...':'Chargement...'}</div>
@@ -499,7 +522,6 @@ export default function Home() {
                 return (
                   <div key={section.key}>
                     {idx > 0 && idx % 2 === 0 && <AdBanner index={Math.floor(idx/2)-1} lang={lang} />}
-                    {/* ✅ horizontal scroll لكل قسم */}
                     <HorizontalSection
                       section={section}
                       listings={sectionListings}
@@ -695,8 +717,18 @@ export default function Home() {
 
             {postStep === 2 && (
               <div>
+                {/* ✅ input file مخفي للمتصفح فقط */}
                 <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
-                <div onClick={() => fileInputRef.current?.click()}
+
+                {/* ✅ زر الصور: يفتح Capacitor في APK، وfile picker في المتصفح */}
+                <div
+                  onClick={() => {
+                    if (Capacitor.isNativePlatform()) {
+                      handleImageChange({})
+                    } else {
+                      fileInputRef.current?.click()
+                    }
+                  }}
                   style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: '#f9fafb', color: '#9ca3af' }}
                 >
                   {imageUploading ? (
