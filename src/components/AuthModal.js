@@ -7,7 +7,7 @@ import { Capacitor } from '@capacitor/core'
 export default function AuthModal({ onClose }) {
   const { lang } = useApp()
 
-  // mode: 'login' | 'register' | 'forgot' | 'forgot_sent'
+  // mode: 'login' | 'register' | 'forgot' | 'forgot_sent' | 'verify_email'
   const [mode,          setMode]          = useState('login')
   const [email,         setEmail]         = useState('')
   const [password,      setPassword]      = useState('')
@@ -17,10 +17,11 @@ export default function AuthModal({ onClose }) {
   const [error,         setError]         = useState('')
   const [showEye,       setShowEye]       = useState(false)
 
-  const isLogin    = mode === 'login'
-  const isForgot   = mode === 'forgot'
-  const isSent     = mode === 'forgot_sent'
-  const isRegister = mode === 'register'
+  const isLogin       = mode === 'login'
+  const isForgot      = mode === 'forgot'
+  const isSent        = mode === 'forgot_sent'
+  const isRegister    = mode === 'register'
+  const isVerifyEmail = mode === 'verify_email'
 
   // ── تسجيل دخول / إنشاء حساب ──
   const handleSubmit = async () => {
@@ -35,7 +36,8 @@ export default function AuthModal({ onClose }) {
         if (error) throw error
         if (data.user) {
           await supabase.from('profiles').insert({ id: data.user.id, name })
-          onClose()
+          // ✅ بدل ما نقفل المودال، نبين رسالة تأكيد الإيميل
+          setMode('verify_email')
         }
       }
     } catch (err) {
@@ -49,7 +51,6 @@ export default function AuthModal({ onClose }) {
     setLoadingGoogle(true)
     setError('')
     try {
-      // إذا APK (Capacitor) استخدم GoogleAuth plugin
       if (Capacitor.isNativePlatform()) {
         const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth')
         await GoogleAuth.initialize()
@@ -63,7 +64,6 @@ export default function AuthModal({ onClose }) {
         if (error) throw error
         onClose()
       } else {
-        // موقع عادي - استخدم OAuth redirect
         await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: { redirectTo: window.location.origin },
@@ -102,7 +102,38 @@ export default function AuthModal({ onClose }) {
     >
       <div style={{ background: 'white', borderRadius: 16, padding: 24, width: '100%', maxWidth: 380, boxSizing: 'border-box' }}>
 
-        {/* ── تم إرسال الإيميل ── */}
+        {/* ✅ تأكيد الإيميل بعد التسجيل */}
+        {isVerifyEmail && (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <div style={{ fontSize: 52, marginBottom: 12 }}>📧</div>
+            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: '#111' }}>
+              {lang==='ar' ? 'تحقق من بريدك الإلكتروني!' : lang==='fr' ? 'Vérifiez votre email !' : 'Check your email!'}
+            </div>
+            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8, lineHeight: 1.7 }}>
+              {lang==='ar'
+                ? `تم إرسال رسالة تأكيد إلى`
+                : lang==='fr'
+                ? `Un email de confirmation a été envoyé à`
+                : `A confirmation email was sent to`}
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#E8192C', marginBottom: 16 }}>
+              {email}
+            </div>
+            <div style={{ background: '#FFF0F1', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#374151', marginBottom: 20, lineHeight: 1.7, textAlign: 'right' }}>
+              {lang==='ar'
+                ? '📌 يرجى فتح بريدك الإلكتروني والضغط على رابط التأكيد قبل تسجيل الدخول'
+                : lang==='fr'
+                ? '📌 Veuillez ouvrir votre email et cliquer sur le lien de confirmation'
+                : '📌 Please open your email and click the confirmation link before logging in'}
+            </div>
+            <button onClick={() => { reset(); setMode('login') }}
+              style={{ background: '#E8192C', color: 'white', border: 'none', borderRadius: 8, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {lang==='ar' ? 'تسجيل الدخول' : lang==='fr' ? 'Se connecter' : 'Sign In'}
+            </button>
+          </div>
+        )}
+
+        {/* ── تم إرسال الإيميل (نسيت كلمة المرور) ── */}
         {isSent && (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>📧</div>
