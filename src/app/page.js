@@ -393,7 +393,7 @@ export default function Home() {
       const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
       alert('🔄 جاري الرفع... blob size: ' + blob.size + ' type: ' + blob.type)
       const { error } = await supabase.storage
-        .from('listing-images')
+        .from('listings')
         .upload(path, blob, {
           cacheControl: '3600',
           upsert: true,
@@ -403,7 +403,7 @@ export default function Home() {
         alert('❌ خطأ Supabase: ' + error.message)
         return null
       }
-      const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(path)
+      const { data: urlData } = supabase.storage.from('listings').getPublicUrl(path)
       alert('✅ تم الرفع: ' + urlData.publicUrl)
       return urlData.publicUrl
     } catch (err) {
