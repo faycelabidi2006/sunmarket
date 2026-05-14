@@ -391,6 +391,7 @@ export default function Home() {
     try {
       const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
       const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
+      alert('🔄 جاري الرفع... blob size: ' + blob.size + ' type: ' + blob.type)
       const { error } = await supabase.storage
         .from('listing-images')
         .upload(path, blob, {
@@ -399,13 +400,14 @@ export default function Home() {
           contentType,
         })
       if (error) {
-        console.error('Supabase upload error:', error.message)
+        alert('❌ خطأ Supabase: ' + error.message)
         return null
       }
       const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(path)
+      alert('✅ تم الرفع: ' + urlData.publicUrl)
       return urlData.publicUrl
     } catch (err) {
-      console.error('uploadBlobToSupabase exception:', err)
+      alert('❌ Exception: ' + err.message)
       return null
     }
   }
@@ -415,19 +417,18 @@ export default function Home() {
     setImageUploading(true)
     const uploaded = []
     try {
-      // طلب صلاحية الكاميرا
       await Camera.requestPermissions({ permissions: ['camera', 'photos'] })
 
-      // تصوير صورة من الكاميرا مباشرة - Base64 أكثر موثوقية على APK
       const photo = await Camera.getPhoto({
         quality: 85,
         allowEditing: false,
-        resultType: CameraResultType.Base64, // ✅ Base64 بدل Uri
+        resultType: CameraResultType.Base64,
         source: CameraSource.Camera,
         saveToGallery: true,
       })
 
-      // ✅ تحويل base64 إلى blob ورفعه على Supabase
+      alert('📸 التقطت الصورة! base64 length: ' + (photo.base64String?.length || 0))
+
       const base64Data = photo.base64String
       const byteCharacters = atob(base64Data)
       const byteNumbers = new Array(byteCharacters.length)
@@ -441,7 +442,7 @@ export default function Home() {
       if (url) uploaded.push(url)
 
     } catch (err) {
-      console.error('Camera error:', err)
+      alert('❌ Camera error: ' + err.message)
     }
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
