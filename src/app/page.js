@@ -306,6 +306,32 @@ export default function Home() {
 
   const bg = darkMode ? '#0f172a' : '#f8f9fa'
 
+  const SEED_LISTINGS = [
+    // 🚗 سيارات
+    { id: 's1', type: 'car', emoji: '🚗', title: 'تويوتا كامري 2021', location: 'تونس العاصمة', price: 45000, time: 'منذ ساعة', tags: [], featured: true, country: 'tn', description: 'سيارة بحالة ممتازة، مالك واحد، كل الخدمات مكتملة', phone: '+21650000001', whatsapp: '+21650000001', images: ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400'], car_make: 'تويوتا', car_model: 'كامري', car_year: '2021', car_mileage: '45000', car_fuel: 'petrol', car_gearbox: 'auto', car_condition: 'excellent', car_body: 'sedan', car_color: 'أبيض' },
+    { id: 's2', type: 'car', emoji: '🚗', title: 'هيونداي توسان 2020', location: 'صفاقس', price: 52000, time: 'منذ 3 ساعات', tags: [], featured: false, country: 'tn', description: 'SUV بحالة جيدة جداً، فتحة سقف، كاميرا خلفية', phone: '+21650000002', whatsapp: '+21650000002', images: ['https://images.unsplash.com/photo-1629897048514-3dd7414fe72a?w=400'], car_make: 'هيونداي', car_model: 'توسان', car_year: '2020', car_mileage: '62000', car_fuel: 'diesel', car_gearbox: 'auto', car_condition: 'very_good', car_body: 'suv', car_color: 'رمادي' },
+    { id: 's3', type: 'car', emoji: '🚗', title: 'رينو كليو 2019', location: 'سوسة', price: 28000, time: 'منذ 5 ساعات', tags: [], featured: false, country: 'tn', description: 'سيارة اقتصادية ممتازة للمدينة، استهلاك منخفض', phone: '+21650000003', whatsapp: '+21650000003', images: ['https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400'], car_make: 'رينو', car_model: 'كليو', car_year: '2019', car_mileage: '78000', car_fuel: 'petrol', car_gearbox: 'manual', car_condition: 'good', car_body: 'hatch', car_color: 'أحمر' },
+    { id: 's4', type: 'car', emoji: '🚗', title: 'فولكسفاغن جولف 2022', location: 'بنزرت', price: 58000, time: 'أمس', tags: [], featured: true, country: 'dz', description: 'جولف 8 بمواصفات عالية، كامل الإكسسوارات', phone: '+21361000001', whatsapp: '+21361000001', images: ['https://images.unsplash.com/photo-1471444928139-48c5bf5173f8?w=400'], car_make: 'فولكسفاغن', car_model: 'جولف', car_year: '2022', car_mileage: '18000', car_fuel: 'petrol', car_gearbox: 'auto', car_condition: 'excellent', car_body: 'hatch', car_color: 'أسود' },
+    // 🔑 تأجير سيارات
+    { id: 's5', type: 'rent', emoji: '🔑', title: 'مرسيدس C200 للإيجار', location: 'تونس العاصمة', price: 300, time: 'منذ ساعتين', tags: [], featured: true, country: 'tn', description: 'سيارة فاخرة للإيجار اليومي، مع سائق أو بدون', phone: '+21650000005', whatsapp: '+21650000005', images: ['https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400'], car_make: 'مرسيدس', car_model: 'C200', car_year: '2023', car_mileage: '0', car_fuel: 'petrol', car_gearbox: 'auto' },
+    { id: 's6', type: 'rent', emoji: '🔑', title: 'كيا سبورتاج للإيجار', location: 'المنستير', price: 150, time: 'منذ يوم', tags: [], featured: false, country: 'tn', description: 'إيجار أسبوعي وشهري متاح، تسليم للمطار', phone: '+21650000006', whatsapp: '+21650000006', images: ['https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400'], car_make: 'كيا', car_model: 'سبورتاج', car_year: '2022', car_mileage: '0', car_fuel: 'petrol', car_gearbox: 'auto' },
+    // 📱 إلكترونيات
+    { id: 's7', type: 'electronics', emoji: '💻', subcategory: 'elec_mobile', phone_brand: 'apple', title: 'iPhone 15 Pro Max 256GB', location: 'تونس العاصمة', price: 4200, time: 'منذ ساعة', tags: [], featured: true, country: 'tn', description: 'آيفون 15 برو ماكس جديد، ضمان سنة، كل الملحقات', phone: '+21650000007', whatsapp: '+21650000007', images: ['https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400'] },
+    { id: 's8', type: 'electronics', emoji: '💻', subcategory: 'elec_mobile', phone_brand: 'samsung', title: 'Samsung Galaxy S24 Ultra', location: 'صفاقس', price: 3800, time: 'منذ 3 ساعات', tags: [], featured: false, country: 'tn', description: 'سامسونج S24 الترا، قلم S-Pen، كاميرا 200MP', phone: '+21650000008', whatsapp: '+21650000008', images: ['https://images.unsplash.com/photo-1706439136010-3e9af8a5ed07?w=400'] },
+    { id: 's9', type: 'electronics', emoji: '💻', subcategory: 'elec_laptop', title: 'MacBook Pro M3 2024', location: 'تونس العاصمة', price: 6500, time: 'منذ 6 ساعات', tags: [], featured: false, country: 'tn', description: 'ماك بوك برو M3، 16GB RAM، 512GB SSD، كالجديد', phone: '+21650000009', whatsapp: '+21650000009', images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400'] },
+    { id: 's10', type: 'electronics', emoji: '💻', subcategory: 'elec_tv', title: 'Samsung QLED 65 بوصة', location: 'سوسة', price: 2800, time: 'أمس', tags: [], featured: false, country: 'tn', description: 'تلفزيون سامسونج QLED 4K، سمارت، بحالة ممتازة', phone: '+21650000010', whatsapp: '+21650000010', images: ['https://images.unsplash.com/photo-1593359677879-a4bb92f829e1?w=400'] },
+    { id: 's11', type: 'electronics', emoji: '💻', subcategory: 'elec_gaming', title: 'PlayStation 5 + جهازين تحكم', location: 'تونس العاصمة', price: 1800, time: 'منذ يومين', tags: [], featured: true, country: 'dz', description: 'PS5 بحالة ممتازة، مع 5 ألعاب، جهازين تحكم', phone: '+21361000002', whatsapp: '+21361000002', images: ['https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400'] },
+    // 🏠 عقارات
+    { id: 's12', type: 'real', emoji: '🏠', subcategory: 'real_res_sale', title: 'شقة 3 غرف للبيع - حي النصر', location: 'تونس العاصمة', price: 280000, time: 'منذ ساعتين', tags: [], featured: true, country: 'tn', description: 'شقة واسعة 120م², 3 غرف نوم، صالة، مطبخ مجهز، موقف سيارة', phone: '+21650000012', whatsapp: '+21650000012', images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'] },
+    { id: 's13', type: 'real', emoji: '🏠', subcategory: 'real_res_rent', title: 'شقة مفروشة للإيجار', location: 'المرسى', price: 1200, time: 'منذ 4 ساعات', tags: [], featured: false, country: 'tn', description: 'شقة مفروشة بالكامل، قريبة من البحر، إنترنت مجاني', phone: '+21650000013', whatsapp: '+21650000013', images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400'] },
+    { id: 's14', type: 'real', emoji: '🏠', subcategory: 'real_daily', title: 'فيلا للإيجار اليومي - الحمامات', location: 'الحمامات', price: 500, time: 'منذ يوم', tags: [], featured: true, country: 'tn', description: 'فيلا فاخرة مع مسبح خاص، 4 غرف نوم، مطلة على البحر', phone: '+21650000014', whatsapp: '+21650000014', images: ['https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400'] },
+    { id: 's15', type: 'real', emoji: '🏠', subcategory: 'real_land', title: 'أرض للبيع - منطقة صناعية', location: 'بن عروس', price: 180000, time: 'منذ 3 أيام', tags: [], featured: false, country: 'tn', description: 'أرض 500م² بموقع استراتيجي، قريبة من الطريق السريع', phone: '+21650000015', whatsapp: '+21650000015', images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'] },
+    // 🔧 قطع غيار
+    { id: 's16', type: 'parts', emoji: '🔧', title: 'كفرات ميشلان 205/55R16 جديدة', location: 'تونس العاصمة', price: 800, time: 'منذ ساعة', tags: [], featured: false, country: 'tn', description: '4 كفرات ميشلان جديدة، مقاس 205/55R16', phone: '+21650000016', whatsapp: '+21650000016', images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'] },
+    { id: 's17', type: 'parts', emoji: '🔧', title: 'كاميرا خلفية تويوتا كامري', location: 'صفاقس', price: 120, time: 'منذ 5 ساعات', tags: [], featured: false, country: 'tn', description: 'كاميرا خلفية أصلية لتويوتا كامري 2018-2022', phone: '+21650000017', whatsapp: '+21650000017', images: ['https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400'] },
+    { id: 's18', type: 'parts', emoji: '🔧', title: 'بطارية بوش 70 أمبير', location: 'سوسة', price: 280, time: 'أمس', tags: [], featured: false, country: 'tn', description: 'بطارية بوش أصلية 70 أمبير، ضمان سنتين', phone: '+21650000018', whatsapp: '+21650000018', images: ['https://images.unsplash.com/photo-1609592806596-b2a1b5e98e1a?w=400'] },
+  ]
+
   useEffect(() => {
     if (!country) return
     setListings([])
@@ -314,7 +340,19 @@ export default function Home() {
       supabase.from('listings').select('*').eq('country', country)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false })
-        .then(({ data, error }) => { if (!error) setListings(data || []); setListLoading(false) })
+        .then(({ data, error }) => {
+          if (!error) {
+            // ✅ لو Supabase فارغ، نعرض الإعلانات الوهمية
+            if (data && data.length > 0) {
+              setListings(data)
+            } else {
+              setListings(SEED_LISTINGS)
+            }
+          } else {
+            setListings(SEED_LISTINGS)
+          }
+          setListLoading(false)
+        })
     }, 300)
     return () => clearTimeout(timer)
   }, [country])
@@ -391,7 +429,6 @@ export default function Home() {
     try {
       const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
       const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
-      alert('🔄 جاري الرفع... blob size: ' + blob.size + ' type: ' + blob.type)
       const { error } = await supabase.storage
         .from('listings')
         .upload(path, blob, {
@@ -400,14 +437,11 @@ export default function Home() {
           contentType,
         })
       if (error) {
-        alert('❌ خطأ Supabase: ' + error.message)
         return null
       }
       const { data: urlData } = supabase.storage.from('listings').getPublicUrl(path)
-      alert('✅ تم الرفع: ' + urlData.publicUrl)
       return urlData.publicUrl
     } catch (err) {
-      alert('❌ Exception: ' + err.message)
       return null
     }
   }
@@ -426,8 +460,7 @@ export default function Home() {
         source: CameraSource.Camera,
         saveToGallery: true,
       })
-
-      alert('📸 التقطت الصورة! base64 length: ' + (photo.base64String?.length || 0))
+)
 
       const base64Data = photo.base64String
       const byteCharacters = atob(base64Data)
@@ -442,7 +475,6 @@ export default function Home() {
       if (url) uploaded.push(url)
 
     } catch (err) {
-      alert('❌ Camera error: ' + err.message)
     }
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
