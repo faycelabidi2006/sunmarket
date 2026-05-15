@@ -460,7 +460,6 @@ export default function Home() {
         source: CameraSource.Camera,
         saveToGallery: true,
       })
-)
 
       const base64Data = photo.base64String
       const byteCharacters = atob(base64Data)
