@@ -412,8 +412,8 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
         onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.borderColor='rgba(226,75,74,0.4)' }}
         onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)';    e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
       >
-        {/* ✅ صورة البطاقة — مصغّرة من 160 إلى 110 */}
-        <div style={{ height:110, background:'linear-gradient(135deg, #0f172a, #1e293b)', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', fontSize:40, overflow:'hidden' }}>
+        {/* ✅ صورة البطاقة — مصغّرة إلى 90 */}
+        <div style={{ height:90, background:'linear-gradient(135deg, #0f172a, #1e293b)', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', fontSize:34, overflow:'hidden' }}>
           {thumb
             ? <img src={thumb} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }} />
             : listing.emoji
@@ -442,7 +442,7 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
         </div>
 
         {/* ✅ محتوى البطاقة — padding مصغّر */}
-        <div style={{ padding:'10px 12px' }}>
+        <div style={{ padding:'7px 10px' }}>
           <div style={{ fontSize:13, fontWeight:600, color:'white', marginBottom:6, lineHeight:1.4, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{listing.title}</div>
           <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:6 }}>📍 {listing.location}</div>
           <div style={{ fontSize:16, fontWeight:800, color:'#E24B4A', marginBottom:6 }}>

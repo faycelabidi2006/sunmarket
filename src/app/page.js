@@ -217,10 +217,11 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
         </div>
         <div style={{ fontSize: 11, color: '#9ca3af' }}>{featured.length} {lang==='ar'?'إعلان':'ad'}</div>
       </div>
-      <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+      {/* ✅ سلايدر أفقي — عرض 160px للبطاقة */}
+      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {featured.map(l => (
-          <div key={l.id} style={{ position: 'relative', flexShrink: 0, width: 240 }}>
-            <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, background: 'linear-gradient(135deg,#EF9F27,#f59e0b)', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>⭐ مميز</div>
+          <div key={l.id} style={{ position: 'relative', flexShrink: 0, width: 160 }}>
+            <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, background: 'linear-gradient(135deg,#EF9F27,#f59e0b)', color: 'white', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>⭐ مميز</div>
             <ListingCard listing={l} currency={currency} allListings={listings} onDelete={onDelete} />
           </div>
         ))}
@@ -240,16 +241,17 @@ function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, 
         lang={lang}
         dark={dark}
       />
-      <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
+      {/* ✅ سلايدر أفقي — عرض 160px للبطاقة */}
+      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
         {listings.slice(0, 10).map(l => (
-          <div key={l.id} style={{ flexShrink: 0, width: 220 }}>
+          <div key={l.id} style={{ flexShrink: 0, width: 160 }}>
             <ListingCard listing={l} currency={currency} allListings={listings} onDelete={onDelete} />
           </div>
         ))}
         {listings.length > 10 && (
           <div
             onClick={onSeeAll}
-            style={{ flexShrink: 0, width: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: dark?'#2d2d5e':'#f3f4f6', borderRadius: 16, cursor: 'pointer', gap: 8, color: '#E8192C', fontWeight: 700, fontSize: 13 }}
+            style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: dark?'#2d2d5e':'#f3f4f6', borderRadius: 16, cursor: 'pointer', gap: 8, color: '#E8192C', fontWeight: 700, fontSize: 13 }}
           >
             <div style={{ fontSize: 24 }}>←</div>
             <div>{lang==='ar'?'عرض الكل':lang==='fr'?'Voir tout':'See All'}</div>
@@ -342,7 +344,6 @@ export default function Home() {
         .order('created_at', { ascending: false })
         .then(({ data, error }) => {
           if (!error) {
-            // ✅ لو Supabase فارغ، نعرض الإعلانات الوهمية
             if (data && data.length > 0) {
               setListings(data)
             } else {
@@ -424,7 +425,6 @@ export default function Home() {
     }
   }
 
-  // ✅ دالة رفع صورة واحدة على Supabase
   const uploadBlobToSupabase = async (blob, ext) => {
     try {
       const path = `listings/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
@@ -446,7 +446,6 @@ export default function Home() {
     }
   }
 
-  // ✅ APK: يفتح الكاميرا مباشرة للتصوير، ثم يرفع على Supabase
   const handleNativeCamera = async () => {
     setImageUploading(true)
     const uploaded = []
@@ -479,7 +478,6 @@ export default function Home() {
     setImageUploading(false)
   }
 
-  // ✅ APK: يفتح الغاليري لاختيار أكثر من صورة، ثم يرفع على Supabase
   const handleNativeGallery = async () => {
     setImageUploading(true)
     const uploaded = []
@@ -505,7 +503,6 @@ export default function Home() {
     setImageUploading(false)
   }
 
-  // ✅ متصفح (ويب/لابتوب): input file عادي
   const handleWebImageChange = async (e) => {
     setImageUploading(true)
     const uploaded = []
@@ -599,7 +596,7 @@ export default function Home() {
                 <div>{lang==='ar'?'لا توجد إعلانات':lang==='fr'?'Aucune annonce':'No listings found'}</div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: 10 }}>
                 {filtered.map(l => <ListingCard key={l.id} listing={l} currency={currency} allListings={listings} onDelete={id => setListings(prev => prev.filter(item => item.id !== id))} />)}
               </div>
             )}
@@ -809,7 +806,6 @@ export default function Home() {
 
             {postStep === 2 && (
               <div>
-                {/* ✅ input file مخفي للويب فقط */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -819,10 +815,8 @@ export default function Home() {
                   onChange={handleWebImageChange}
                 />
 
-                {/* ✅ زرين: كاميرا + غاليري على APK | زر واحد على الويب */}
                 {Capacitor.isNativePlatform() ? (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                    {/* زر الكاميرا */}
                     <div
                       onClick={!imageUploading ? handleNativeCamera : undefined}
                       style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
@@ -837,7 +831,6 @@ export default function Home() {
                         </>
                       )}
                     </div>
-                    {/* زر الغاليري */}
                     <div
                       onClick={!imageUploading ? handleNativeGallery : undefined}
                       style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
@@ -854,7 +847,6 @@ export default function Home() {
                     </div>
                   </div>
                 ) : (
-                  /* زر الويب */
                   <div
                     onClick={() => fileInputRef.current?.click()}
                     style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: '#f9fafb', color: '#9ca3af' }}
@@ -871,7 +863,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* ✅ عرض الصور المرفوعة */}
                 {imageUrls.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                     {imageUrls.map((url, i) => (
