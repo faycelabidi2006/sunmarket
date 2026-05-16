@@ -13,12 +13,10 @@ const TYPE_LABELS = {
 }
 
 const APP_NAME = 'SUN MARKET'
-const APP_URL  = 'https://sunmarket.app' // ← غيّر للرابط الحقيقي
+const APP_URL  = 'https://sunmarket.app'
 
-// ── عرض الصورة بملء الشاشة ──
 function FullscreenImage({ images, startIndex, onClose }) {
   const [idx, setIdx] = useState(startIndex)
-
   const prev = useCallback(() => setIdx(i => (i - 1 + images.length) % images.length), [images.length])
   const next = useCallback(() => setIdx(i => (i + 1) % images.length), [images.length])
 
@@ -40,20 +38,16 @@ function FullscreenImage({ images, startIndex, onClose }) {
       <button onClick={onClose}
         style={{ position:'absolute', top:16, left:16, background:'rgba(255,255,255,0.15)', border:'none', borderRadius:'50%', width:42, height:42, color:'white', fontSize:20, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10 }}
       >✕</button>
-
       <div style={{ position:'absolute', top:20, left:'50%', transform:'translateX(-50%)', color:'white', fontSize:13, background:'rgba(0,0,0,0.5)', padding:'4px 14px', borderRadius:20 }}>
         {idx + 1} / {images.length}
       </div>
-
       <img src={images[idx]} alt="" style={{ maxWidth:'95vw', maxHeight:'85vh', objectFit:'contain', borderRadius:10 }} />
-
       {images.length > 1 && (
         <>
           <button onClick={prev} style={{ position:'absolute', top:'50%', left:16, transform:'translateY(-50%)', background:'rgba(255,255,255,0.15)', border:'none', borderRadius:'50%', width:46, height:46, color:'white', fontSize:24, cursor:'pointer' }}>‹</button>
           <button onClick={next} style={{ position:'absolute', top:'50%', right:16, transform:'translateY(-50%)', background:'rgba(255,255,255,0.15)', border:'none', borderRadius:'50%', width:46, height:46, color:'white', fontSize:24, cursor:'pointer' }}>›</button>
         </>
       )}
-
       {images.length > 1 && (
         <div style={{ position:'absolute', bottom:16, display:'flex', gap:8, overflowX:'auto', padding:'0 16px', maxWidth:'95vw' }}>
           {images.map((url, i) => (
@@ -67,17 +61,16 @@ function FullscreenImage({ images, startIndex, onClose }) {
   )
 }
 
-// ── زر المشاركة ──
 function SharePanel({ listing, onClose }) {
   const title   = encodeURIComponent(`${listing.title} — ${APP_NAME}`)
   const url     = encodeURIComponent(`${APP_URL}/listing/${listing.id}`)
   const text    = encodeURIComponent(`${listing.title}\n💰 ${Number(listing.price).toLocaleString()}\n📍 ${listing.location}\n\n${APP_NAME}: ${APP_URL}`)
 
   const platforms = [
-    { label: 'واتساب',   color: '#25D366', emoji: '💬', href: `https://wa.me/?text=${text}` },
-    { label: 'تيليغرام', color: '#0088cc', emoji: '✈️', href: `https://t.me/share/url?url=${url}&text=${title}` },
-    { label: 'فيسبوك',   color: '#1877f2', emoji: '👍', href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
-    { label: 'تويتر',    color: '#1da1f2', emoji: '🐦', href: `https://twitter.com/intent/tweet?text=${text}` },
+    { label: 'واتساب',     color: '#25D366', emoji: '💬', href: `https://wa.me/?text=${text}` },
+    { label: 'تيليغرام',   color: '#0088cc', emoji: '✈️', href: `https://t.me/share/url?url=${url}&text=${title}` },
+    { label: 'فيسبوك',     color: '#1877f2', emoji: '👍', href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+    { label: 'تويتر',      color: '#1da1f2', emoji: '🐦', href: `https://twitter.com/intent/tweet?text=${text}` },
     { label: 'نسخ الرابط', color: '#6b7280', emoji: '🔗', href: null },
   ]
 
@@ -92,7 +85,6 @@ function SharePanel({ listing, onClose }) {
     >
       <div style={{ background:'#1e2d42', borderRadius:'20px 20px 0 0', padding:'20px 20px 36px', width:'100%', maxWidth:500, border:'1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ textAlign:'center', color:'white', fontWeight:700, fontSize:15, marginBottom:18 }}>مشاركة الإعلان</div>
-
         <div style={{ background:'rgba(255,255,255,0.06)', borderRadius:12, padding:12, marginBottom:18, display:'flex', gap:10, alignItems:'center' }}>
           {listing.images?.[0]
             ? <img src={listing.images[0]} alt="" style={{ width:56, height:56, borderRadius:8, objectFit:'cover', flexShrink:0 }} />
@@ -104,7 +96,6 @@ function SharePanel({ listing, onClose }) {
             <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:2 }}>🌐 {APP_NAME}</div>
           </div>
         </div>
-
         <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10, marginBottom:16 }}>
           {platforms.map(p => (
             p.href ? (
@@ -124,7 +115,6 @@ function SharePanel({ listing, onClose }) {
             )
           ))}
         </div>
-
         <button onClick={onClose}
           style={{ width:'100%', background:'rgba(255,255,255,0.08)', border:'none', borderRadius:12, padding:12, color:'rgba(255,255,255,0.6)', fontSize:14, cursor:'pointer' }}
         >إلغاء</button>
@@ -133,7 +123,6 @@ function SharePanel({ listing, onClose }) {
   )
 }
 
-// ── بطاقة المشابهة ──
 function SimilarCard({ item, currency, onClick }) {
   const typeInfo = TYPE_LABELS[item.type] || { ar:'أخرى', color:'#6b7280' }
   const thumb = item.images?.[0]
@@ -164,7 +153,6 @@ function SimilarCard({ item, currency, onClick }) {
   )
 }
 
-// ── Modal الإعلان الكامل ──
 function ListingModal({ listing, currency, allListings, onClose }) {
   const { lang } = useApp()
   const [liked,        setLiked]        = useState(false)
@@ -219,7 +207,6 @@ function ListingModal({ listing, currency, allListings, onClose }) {
         <div id="listing-modal-scroll"
           style={{ background:'#1e2d42', borderRadius:20, width:'100%', maxWidth:520, maxHeight:'90vh', overflowY:'auto', border:'1px solid rgba(255,255,255,0.12)', direction:'rtl', position:'relative' }}
         >
-          {/* ── شريط الصور ── */}
           <div style={{ position:'relative', borderRadius:'20px 20px 0 0', overflow:'hidden' }}>
             {images.length > 0 ? (
               <>
@@ -229,7 +216,6 @@ function ListingModal({ listing, currency, allListings, onClose }) {
                     🔍 اضغط للتكبير
                   </div>
                 </div>
-
                 {images.length > 1 && (
                   <>
                     <button onClick={() => setActiveImg(i => (i - 1 + images.length) % images.length)}
@@ -244,7 +230,6 @@ function ListingModal({ listing, currency, allListings, onClose }) {
                     </div>
                   </>
                 )}
-
                 {images.length > 1 && (
                   <div style={{ display:'flex', gap:6, padding:'8px 12px', background:'rgba(0,0,0,0.4)', overflowX:'auto' }}>
                     {images.map((url, i) => (
@@ -263,23 +248,18 @@ function ListingModal({ listing, currency, allListings, onClose }) {
             <button onClick={onClose}
               style={{ position:'absolute', top:14, left:14, background:'rgba(0,0,0,0.6)', border:'1px solid rgba(255,255,255,0.25)', borderRadius:'50%', width:38, height:38, color:'white', fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10 }}
             >✕</button>
-
             <div style={{ position:'absolute', top:14, right:14, background:typeInfo.color, color:'white', fontSize:11, fontWeight:700, padding:'4px 12px', borderRadius:20, zIndex:10 }}>{typeInfo.ar}</div>
-
             {current.featured && (
               <div style={{ position:'absolute', top:52, right:14, background:'#EF9F27', color:'white', fontSize:11, fontWeight:700, padding:'4px 12px', borderRadius:20, zIndex:10 }}>مميز ⭐</div>
             )}
-
             <button onClick={() => setLiked(!liked)}
               style={{ position:'absolute', bottom: images.length>1?72:14, left:14, background:'rgba(0,0,0,0.5)', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'50%', width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:18, zIndex:10 }}
             >{liked ? '❤️' : '🤍'}</button>
-
             <button onClick={() => setShowShare(true)}
               style={{ position:'absolute', bottom: images.length>1?72:14, left:60, background:'rgba(0,0,0,0.5)', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'50%', width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:18, zIndex:10 }}
             >📤</button>
           </div>
 
-          {/* ── محتوى الإعلان ── */}
           <div style={{ padding:20 }}>
             <div style={{ marginBottom:16, display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
               <div style={{ flex:1 }}>
@@ -378,7 +358,6 @@ function ListingModal({ listing, currency, allListings, onClose }) {
       {fullscreen && images.length > 0 && (
         <FullscreenImage images={images} startIndex={activeImg} onClose={() => setFullscreen(false)} />
       )}
-
       {showShare && (
         <SharePanel listing={current} onClose={() => setShowShare(false)} />
       )}
@@ -405,75 +384,119 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
   const typeInfo = TYPE_LABELS[listing.type] || { ar:'أخرى', color:'#6b7280' }
   const thumb    = listing.images?.[0]
 
+  // ارتفاع البطاقة الكلي — الصورة 90% والنص 10%
+  const CARD_HEIGHT = 320          // ارتفاع البطاقة الكامل
+  const IMG_HEIGHT  = CARD_HEIGHT * 0.90  // 288px ≈ 90%
+  const TEXT_HEIGHT = CARD_HEIGHT * 0.10  // 32px ≈ 10%
+
   return (
     <>
       <div onClick={() => setShowModal(true)}
-        style={{ background:'linear-gradient(145deg, #1e293b, #162032)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, overflow:'hidden', cursor:'pointer', transition:'transform 0.2s, border-color 0.2s', direction:'rtl' }}
+        style={{
+          background:'linear-gradient(145deg, #1e293b, #162032)',
+          border:'1px solid rgba(255,255,255,0.08)',
+          borderRadius:16,
+          overflow:'hidden',
+          cursor:'pointer',
+          transition:'transform 0.2s, border-color 0.2s',
+          direction:'rtl',
+          height: CARD_HEIGHT,
+          display:'flex',
+          flexDirection:'column',
+        }}
         onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.borderColor='rgba(226,75,74,0.4)' }}
         onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)';    e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
       >
-        {/* ✅ صورة البطاقة — مصغّرة إلى 90 */}
-        <div style={{ height:90, background:'linear-gradient(135deg, #0f172a, #1e293b)', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', fontSize:34, overflow:'hidden' }}>
+        {/* ── منطقة الصورة 90% ── */}
+        <div style={{
+          height: IMG_HEIGHT,
+          flex: `0 0 ${IMG_HEIGHT}px`,
+          background:'linear-gradient(135deg, #0f172a, #1e293b)',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          position:'relative',
+          fontSize:56,
+          overflow:'hidden',
+        }}>
           {thumb
             ? <img src={thumb} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }} />
             : listing.emoji
           }
-          {thumb && <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.3), transparent)' }} />}
 
-          <div style={{ position:'absolute', top:8, right:8, background:typeInfo.color, color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20, zIndex:1 }}>{typeInfo.ar}</div>
+          {/* تدرج سفلي خفيف لتحسين قراءة البيانات المتراكبة */}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 45%)' }} />
 
+          {/* شارة النوع */}
+          <div style={{ position:'absolute', top:8, right:8, background:typeInfo.color, color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>
+            {typeInfo.ar}
+          </div>
+
+          {/* شارة مميز */}
           {listing.featured && (
-            <div style={{ position:'absolute', top:8, left:8, background:'#EF9F27', color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20, zIndex:1 }}>مميز ⭐</div>
+            <div style={{ position:'absolute', top:8, left:8, background:'#EF9F27', color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>⭐ مميز</div>
           )}
 
+          {/* عداد الصور */}
+          {listing.images?.length > 0 && (
+            <div style={{ position:'absolute', bottom:40, left:8, background:'rgba(0,0,0,0.65)', color:'white', fontSize:11, fontWeight:600, padding:'3px 9px', borderRadius:20, zIndex:1 }}>
+              📷 {listing.images.length}
+            </div>
+          )}
+
+          {/* موثق */}
           {listing.verified && (
-            <div style={{ position:'absolute', bottom:8, right:8, background:'linear-gradient(135deg,#3b82f6,#1d4ed8)', color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20, zIndex:1, display:'flex', alignItems:'center', gap:3 }}>
+            <div style={{ position:'absolute', bottom:40, left: listing.images?.length > 0 ? 60 : 8, background:'linear-gradient(135deg,#3b82f6,#1d4ed8)', color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20, zIndex:1, display:'flex', alignItems:'center', gap:3 }}>
               ✓ موثق
             </div>
           )}
 
-          {listing.images?.length > 1 && (
-            <div style={{ position:'absolute', bottom:8, left:8, background:'rgba(0,0,0,0.55)', color:'white', fontSize:9, padding:'2px 6px', borderRadius:20, zIndex:1 }}>📷 {listing.images.length}</div>
-          )}
-
+          {/* زر القلب */}
           <button onClick={e => { e.stopPropagation(); setLiked(!liked) }}
-            style={{ position:'absolute', bottom:8, right: listing.verified ? 60 : 8, background:'rgba(0,0,0,0.4)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'50%', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:13, transition:'all 0.2s', zIndex:1 }}
+            style={{ position:'absolute', top:8, left: listing.featured ? 70 : 8, background:'rgba(0,0,0,0.5)', border:'none', borderRadius:'50%', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14, zIndex:1 }}
           >{liked ? '❤️' : '🤍'}</button>
+
+          {/* ── السعر والعنوان داخل الصورة في الأسفل ── */}
+          <div style={{ position:'absolute', bottom:0, right:0, left:0, padding:'8px 10px', zIndex:2 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{listing.title}</div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:16, fontWeight:800, color:'#E24B4A' }}>
+                {Number(listing.price).toLocaleString()} <span style={{ fontSize:10, fontWeight:400, color:'rgba(255,255,255,0.5)' }}>{currency}</span>
+              </div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)' }}>📍 {listing.location}</div>
+            </div>
+          </div>
         </div>
 
-        {/* ✅ محتوى البطاقة — padding مصغّر */}
-        <div style={{ padding:'7px 10px' }}>
-          <div style={{ fontSize:13, fontWeight:600, color:'white', marginBottom:6, lineHeight:1.4, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{listing.title}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:6 }}>📍 {listing.location}</div>
-          <div style={{ fontSize:16, fontWeight:800, color:'#E24B4A', marginBottom:6 }}>
-            {Number(listing.price).toLocaleString()} <span style={{ fontSize:11, fontWeight:400 }}>{currency}</span>
+        {/* ── شريط الأسفل 10% — فقط الأزرار ── */}
+        <div style={{
+          height: TEXT_HEIGHT,
+          flex: `0 0 ${TEXT_HEIGHT}px`,
+          padding:'0 10px',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          background:'#111d2e',
+          borderTop:'1px solid rgba(255,255,255,0.06)',
+        }}>
+          <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>
+            👁 {(listing.views||0).toLocaleString()} · 🕐 {listing.time}
           </div>
-          <div style={{ display:'flex', gap:4, flexWrap:'wrap', marginBottom:10 }}>
-            {(listing.tags || []).map((tag, i) => (
-              <span key={i} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', fontSize:10, padding:'2px 8px', borderRadius:20 }}>{tag}</span>
-            ))}
-          </div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:8 }}>
-            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)' }}>🕐 {listing.time}</div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)' }}>👁 {(listing.views || 0).toLocaleString()}</div>
-            </div>
-            <div style={{ display:'flex', gap:5 }}>
-              {isAdmin && (
-                confirmDelete ? (
-                  <div style={{ display:'flex', gap:4 }}>
-                    <button onClick={e => { e.stopPropagation(); supabase.from('listings').delete().eq('id', listing.id).then(() => onDelete && onDelete(listing.id)) }}
-                      style={{ background:'#dc2626', color:'white', border:'none', borderRadius:8, padding:'5px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}>✓ تأكيد</button>
-                    <button onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
-                      style={{ background:'#6b7280', color:'white', border:'none', borderRadius:8, padding:'5px 8px', fontSize:10, cursor:'pointer' }}>✕</button>
-                  </div>
-                ) : (
-                  <button onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
-                    style={{ background:'#dc2626', color:'white', border:'none', borderRadius:8, padding:'5px 10px', fontSize:11, fontWeight:600, cursor:'pointer' }}>🗑</button>
-                )
-              )}
-              <button style={{ background:'#E24B4A', color:'white', border:'none', borderRadius:8, padding:'5px 12px', fontSize:11, fontWeight:600, cursor:'pointer' }}>تفاصيل</button>
-            </div>
+          <div style={{ display:'flex', gap:5, flexShrink:0 }}>
+            {isAdmin && (
+              confirmDelete ? (
+                <div style={{ display:'flex', gap:4 }}>
+                  <button onClick={e => { e.stopPropagation(); supabase.from('listings').delete().eq('id', listing.id).then(() => onDelete && onDelete(listing.id)) }}
+                    style={{ background:'#dc2626', color:'white', border:'none', borderRadius:6, padding:'3px 6px', fontSize:9, fontWeight:700, cursor:'pointer' }}>✓</button>
+                  <button onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
+                    style={{ background:'#6b7280', color:'white', border:'none', borderRadius:6, padding:'3px 6px', fontSize:9, cursor:'pointer' }}>✕</button>
+                </div>
+              ) : (
+                <button onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
+                  style={{ background:'#dc2626', color:'white', border:'none', borderRadius:6, padding:'3px 8px', fontSize:10, fontWeight:600, cursor:'pointer' }}>🗑</button>
+              )
+            )}
+            <button style={{ background:'#E24B4A', color:'white', border:'none', borderRadius:6, padding:'3px 10px', fontSize:10, fontWeight:600, cursor:'pointer' }}>تفاصيل</button>
           </div>
         </div>
       </div>
