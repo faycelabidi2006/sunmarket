@@ -93,7 +93,7 @@ export default function Sidebar({ open, onClose, onCategoryChange, onPostClick, 
           {/* Header */}
           <div style={{ background: 'linear-gradient(135deg,#E8192C,#c0392b)', padding: '20px 16px', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>☀️ SUN MARKET</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>☀️ Souqna</div>
               <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: 30, height: 30, color: 'white', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
 
