@@ -12,7 +12,7 @@ const TYPE_LABELS = {
   parts:       { ar:'قطع غيار',   color:'#ef4444' },
 }
 
-const APP_NAME = 'SUN MARKET'
+const APP_NAME = 'سوقنا | Souqna'
 const APP_URL  = 'https://sunmarket.app'
 
 function FullscreenImage({ images, startIndex, onClose }) {
@@ -384,10 +384,10 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
   const typeInfo = TYPE_LABELS[listing.type] || { ar:'أخرى', color:'#6b7280' }
   const thumb    = listing.images?.[0]
 
-  // ارتفاع البطاقة الكلي — الصورة 90% والنص 10%
-  const CARD_HEIGHT = 320          // ارتفاع البطاقة الكامل
-  const IMG_HEIGHT  = CARD_HEIGHT * 0.90  // 288px ≈ 90%
-  const TEXT_HEIGHT = CARD_HEIGHT * 0.10  // 32px ≈ 10%
+  // ارتفاع البطاقة: الصورة 90% والنص 10%
+  const CARD_HEIGHT = 320
+  const IMG_HEIGHT  = Math.round(CARD_HEIGHT * 0.90) // 288px
+  const TEXT_HEIGHT = CARD_HEIGHT - IMG_HEIGHT        // 32px
 
   return (
     <>
@@ -424,8 +424,8 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             : listing.emoji
           }
 
-          {/* تدرج سفلي خفيف لتحسين قراءة البيانات المتراكبة */}
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 45%)' }} />
+          {/* تدرج سفلي لتحسين قراءة النص */}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%)' }} />
 
           {/* شارة النوع */}
           <div style={{ position:'absolute', top:8, right:8, background:typeInfo.color, color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>
@@ -437,42 +437,64 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             <div style={{ position:'absolute', top:8, left:8, background:'#EF9F27', color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>⭐ مميز</div>
           )}
 
-          {/* عداد الصور */}
+          {/* ── عداد الصور — يظهر دائماً ── */}
           {listing.images?.length > 0 && (
-            <div style={{ position:'absolute', bottom:40, left:8, background:'rgba(0,0,0,0.65)', color:'white', fontSize:11, fontWeight:600, padding:'3px 9px', borderRadius:20, zIndex:1 }}>
+            <div style={{
+              position:'absolute', bottom:36, left:8,
+              background:'rgba(0,0,0,0.72)',
+              color:'white', fontSize:11, fontWeight:700,
+              padding:'3px 10px', borderRadius:20, zIndex:2,
+              display:'flex', alignItems:'center', gap:4,
+            }}>
               📷 {listing.images.length}
             </div>
           )}
 
           {/* موثق */}
           {listing.verified && (
-            <div style={{ position:'absolute', bottom:40, left: listing.images?.length > 0 ? 60 : 8, background:'linear-gradient(135deg,#3b82f6,#1d4ed8)', color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20, zIndex:1, display:'flex', alignItems:'center', gap:3 }}>
+            <div style={{
+              position:'absolute', bottom:36,
+              left: listing.images?.length > 0 ? 70 : 8,
+              background:'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+              color:'white', fontSize:9, fontWeight:700,
+              padding:'2px 8px', borderRadius:20, zIndex:2,
+              display:'flex', alignItems:'center', gap:3,
+            }}>
               ✓ موثق
             </div>
           )}
 
           {/* زر القلب */}
           <button onClick={e => { e.stopPropagation(); setLiked(!liked) }}
-            style={{ position:'absolute', top:8, left: listing.featured ? 70 : 8, background:'rgba(0,0,0,0.5)', border:'none', borderRadius:'50%', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14, zIndex:1 }}
+            style={{
+              position:'absolute', top:8,
+              left: listing.featured ? 72 : 8,
+              background:'rgba(0,0,0,0.5)', border:'none',
+              borderRadius:'50%', width:30, height:30,
+              display:'flex', alignItems:'center', justifyContent:'center',
+              cursor:'pointer', fontSize:14, zIndex:2,
+            }}
           >{liked ? '❤️' : '🤍'}</button>
 
-          {/* ── السعر والعنوان داخل الصورة في الأسفل ── */}
-          <div style={{ position:'absolute', bottom:0, right:0, left:0, padding:'8px 10px', zIndex:2 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{listing.title}</div>
+          {/* ── العنوان + السعر + الموقع داخل الصورة ── */}
+          <div style={{ position:'absolute', bottom:0, right:0, left:0, padding:'6px 10px 4px', zIndex:2 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+              {listing.title}
+            </div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div style={{ fontSize:16, fontWeight:800, color:'#E24B4A' }}>
                 {Number(listing.price).toLocaleString()} <span style={{ fontSize:10, fontWeight:400, color:'rgba(255,255,255,0.5)' }}>{currency}</span>
               </div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)' }}>📍 {listing.location}</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.6)' }}>📍 {listing.location}</div>
             </div>
           </div>
         </div>
 
-        {/* ── شريط الأسفل 10% — فقط الأزرار ── */}
+        {/* ── شريط الأسفل 10% — أزرار فقط ── */}
         <div style={{
           height: TEXT_HEIGHT,
           flex: `0 0 ${TEXT_HEIGHT}px`,
-          padding:'0 10px',
+          padding:'0 8px',
           display:'flex',
           alignItems:'center',
           justifyContent:'space-between',
@@ -482,10 +504,10 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
           <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>
             👁 {(listing.views||0).toLocaleString()} · 🕐 {listing.time}
           </div>
-          <div style={{ display:'flex', gap:5, flexShrink:0 }}>
+          <div style={{ display:'flex', gap:4, flexShrink:0 }}>
             {isAdmin && (
               confirmDelete ? (
-                <div style={{ display:'flex', gap:4 }}>
+                <div style={{ display:'flex', gap:3 }}>
                   <button onClick={e => { e.stopPropagation(); supabase.from('listings').delete().eq('id', listing.id).then(() => onDelete && onDelete(listing.id)) }}
                     style={{ background:'#dc2626', color:'white', border:'none', borderRadius:6, padding:'3px 6px', fontSize:9, fontWeight:700, cursor:'pointer' }}>✓</button>
                   <button onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
