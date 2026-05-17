@@ -384,10 +384,19 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
   const typeInfo = TYPE_LABELS[listing.type] || { ar:'أخرى', color:'#6b7280' }
   const thumb    = listing.images?.[0]
 
-  // ارتفاع البطاقة: الصورة 90% والنص 10%
   const CARD_HEIGHT = 240
   const IMG_HEIGHT  = 160
   const TEXT_HEIGHT = 80
+
+  // ── الحذف الصحيح ──
+  const handleDelete = async (e) => {
+    e.stopPropagation()
+    const { error } = await supabase.from('listings').delete().eq('id', listing.id)
+    if (!error && onDelete) {
+      onDelete(listing.id)
+    }
+    setConfirmDelete(false)
+  }
 
   return (
     <>
@@ -407,7 +416,7 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
         onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.borderColor='rgba(226,75,74,0.4)' }}
         onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)';    e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
       >
-        {/* ── منطقة الصورة 90% ── */}
+        {/* ── منطقة الصورة ── */}
         <div style={{
           height: IMG_HEIGHT,
           flex: `0 0 ${IMG_HEIGHT}px`,
@@ -424,20 +433,16 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             : listing.emoji
           }
 
-          {/* تدرج سفلي لتحسين قراءة النص */}
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%)' }} />
 
-          {/* شارة النوع */}
           <div style={{ position:'absolute', top:8, right:8, background:typeInfo.color, color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>
             {typeInfo.ar}
           </div>
 
-          {/* شارة مميز */}
           {listing.featured && (
             <div style={{ position:'absolute', top:8, left:8, background:'#EF9F27', color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, zIndex:1 }}>⭐ مميز</div>
           )}
 
-          {/* ── عداد الصور — يظهر دائماً ── */}
           {listing.images?.length > 0 && (
             <div style={{
               position:'absolute', bottom:36, left:8,
@@ -450,7 +455,6 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             </div>
           )}
 
-          {/* موثق */}
           {listing.verified && (
             <div style={{
               position:'absolute', bottom:36,
@@ -464,7 +468,6 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             </div>
           )}
 
-          {/* زر القلب */}
           <button onClick={e => { e.stopPropagation(); setLiked(!liked) }}
             style={{
               position:'absolute', top:8,
@@ -476,7 +479,6 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             }}
           >{liked ? '❤️' : '🤍'}</button>
 
-          {/* ── العنوان + السعر + الموقع داخل الصورة ── */}
           <div style={{ position:'absolute', bottom:0, right:0, left:0, padding:'6px 10px 4px', zIndex:2 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
               {listing.title}
@@ -490,7 +492,7 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
           </div>
         </div>
 
-        {/* ── شريط الأسفل 10% — أزرار فقط ── */}
+        {/* ── شريط الأسفل ── */}
         <div style={{
           height: TEXT_HEIGHT,
           flex: `0 0 ${TEXT_HEIGHT}px`,
@@ -508,7 +510,8 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
             {isAdmin && (
               confirmDelete ? (
                 <div style={{ display:'flex', gap:3 }}>
-                  <button onClick={e => { e.stopPropagation(); supabase.from('listings').delete().eq('id', listing.id).then(() => onDelete && onDelete(listing.id)) }}
+                  {/* ✅ زر الحذف المصلح */}
+                  <button onClick={handleDelete}
                     style={{ background:'#dc2626', color:'white', border:'none', borderRadius:6, padding:'3px 6px', fontSize:9, fontWeight:700, cursor:'pointer' }}>✓</button>
                   <button onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
                     style={{ background:'#6b7280', color:'white', border:'none', borderRadius:6, padding:'3px 6px', fontSize:9, cursor:'pointer' }}>✕</button>
