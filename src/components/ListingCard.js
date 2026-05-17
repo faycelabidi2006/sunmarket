@@ -385,9 +385,9 @@ export default function ListingCard({ listing, currency, allListings, onDelete }
   const thumb    = listing.images?.[0]
 
   // ارتفاع البطاقة: الصورة 90% والنص 10%
-  const CARD_HEIGHT = 320
-  const IMG_HEIGHT  = Math.round(CARD_HEIGHT * 0.90) // 288px
-  const TEXT_HEIGHT = CARD_HEIGHT - IMG_HEIGHT        // 32px
+  const CARD_HEIGHT = 240
+  const IMG_HEIGHT  = 160
+  const TEXT_HEIGHT = 80
 
   return (
     <>
