@@ -16,6 +16,7 @@ export default function AuthModal({ onClose }) {
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [error,         setError]         = useState('')
   const [showEye,       setShowEye]       = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   const isLogin       = mode === 'login'
   const isForgot      = mode === 'forgot'
@@ -25,6 +26,14 @@ export default function AuthModal({ onClose }) {
 
   // ── تسجيل دخول / إنشاء حساب ──
   const handleSubmit = async () => {
+    if (isRegister && !agreedToTerms) {
+      setError(
+        lang === 'ar' ? 'يجب الموافقة على الشروط والأحكام أولاً' :
+        lang === 'fr' ? 'Vous devez accepter les conditions d\'utilisation' :
+        'You must accept the Terms & Conditions'
+      )
+      return
+    }
     setLoading(true); setError('')
     try {
       if (isLogin) {
@@ -87,7 +96,7 @@ export default function AuthModal({ onClose }) {
     setMode('forgot_sent')
   }
 
-  const reset = () => { setError(''); setEmail(''); setPassword(''); setName('') }
+  const reset = () => { setError(''); setEmail(''); setPassword(''); setName(''); setAgreedToTerms(false) }
 
   const inputStyle = {
     width: '100%', border: '0.5px solid #e5e7eb', borderRadius: 8,
@@ -238,7 +247,7 @@ export default function AuthModal({ onClose }) {
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="example@email.com" />
             </div>
 
-            <div style={{ marginBottom: isLogin ? 8 : 20 }}>
+            <div style={{ marginBottom: isLogin ? 8 : 16 }}>
               <label style={{ fontSize: 12, color: '#6b7280', display: 'block', marginBottom: 6 }}>كلمة المرور</label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -267,6 +276,33 @@ export default function AuthModal({ onClose }) {
               </div>
             </div>
 
+            {/* ── الشروط والأحكام (عند التسجيل فقط) ── */}
+            {isRegister && (
+              <div
+                onClick={() => setAgreedToTerms(!agreedToTerms)}
+                style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                  border: `2px solid ${agreedToTerms ? '#E8192C' : '#d1d5db'}`,
+                  background: agreedToTerms ? '#E8192C' : 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}>
+                  {agreedToTerms && <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>✓</span>}
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.6 }}>
+                  {lang === 'ar' ? (
+                    <>أوافق على <span style={{ color: '#E8192C', fontWeight: 700 }}>الشروط والأحكام</span> وسياسة الخصوصية</>
+                  ) : lang === 'fr' ? (
+                    <>J'accepte les <span style={{ color: '#E8192C', fontWeight: 700 }}>conditions d'utilisation</span> et la politique de confidentialité</>
+                  ) : (
+                    <>I agree to the <span style={{ color: '#E8192C', fontWeight: 700 }}>Terms & Conditions</span> and Privacy Policy</>
+                  )}
+                </div>
+              </div>
+            )}
+
             {isLogin && (
               <div style={{ textAlign: 'left', marginBottom: 20 }}>
                 <span
@@ -278,8 +314,16 @@ export default function AuthModal({ onClose }) {
               </div>
             )}
 
-            <button onClick={handleSubmit} disabled={loading}
-              style={{ width: '100%', background: '#E24B4A', color: 'white', border: 'none', borderRadius: 8, padding: '12px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: loading ? 0.7 : 1, boxSizing: 'border-box' }}>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || (isRegister && !agreedToTerms)}
+              style={{
+                width: '100%', background: '#E24B4A', color: 'white', border: 'none', borderRadius: 8,
+                padding: '12px', fontSize: 15, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box',
+                opacity: loading || (isRegister && !agreedToTerms) ? 0.5 : 1,
+                cursor: loading || (isRegister && !agreedToTerms) ? 'not-allowed' : 'pointer',
+              }}
+            >
               {loading ? '⏳ جاري...' : isLogin ? 'دخول' : 'إنشاء حساب'}
             </button>
 

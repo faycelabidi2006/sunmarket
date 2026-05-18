@@ -19,6 +19,8 @@ import { Capacitor } from '@capacitor/core'
 const currentYear = new Date().getFullYear()
 const YEARS = Array.from({ length: 35 }, (_, i) => currentYear - i)
 
+const ADMIN_WHATSAPP = '00971567603796'
+
 const CAR_MAKES = [
   'تويوتا','هوندا','نيسان','هيونداي','كيا','فولكسفاغن','رينو','بيجو','سيتروين',
   'فورد','شيفروليه','مرسيدس','بي ام دبليو','أودي','فيات','أوبل','ميتسوبيشي',
@@ -136,6 +138,75 @@ const AD_BANNERS = [
   { bg: 'linear-gradient(135deg,#10b981,#059669)', emoji: '🏆', title: { ar: 'إعلانات مميزة بأسعار خاصة', fr: 'Annonces premium', en: 'Premium ads' }, sub: { ar: 'وصول أكبر، مبيعات أسرع', fr: 'Plus de portée, ventes rapides', en: 'More reach, faster sales' }, btn: { ar: 'اعرف أكثر', fr: 'En savoir plus', en: 'Learn more' } },
 ]
 
+// ─── نافذة الإعلان المميز ───────────────────────────────────────────────────
+function FeaturedModal({ country, currency, lang, onConfirm, onClose }) {
+  const [price, setPrice] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('featured_prices').select('price').eq('country', country).single()
+      .then(({ data }) => {
+        setPrice(data?.price ?? null)
+        setLoading(false)
+      })
+  }, [country])
+
+  const waText = encodeURIComponent(`مرحباً، أريد ترقية إعلاني إلى مميز ⭐\nالبلد: ${country}\nالسعر: ${price} ${currency}`)
+  const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${waText}`
+
+  return (
+    <div onClick={e => e.target === e.currentTarget && onClose()}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+    >
+      <div style={{ background: 'white', borderRadius: 20, padding: 28, width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>⭐</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 6 }}>
+            {lang === 'ar' ? 'إعلان مميز' : lang === 'fr' ? 'Annonce Premium' : 'Featured Ad'}
+          </div>
+          <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+            {lang === 'ar' ? 'إعلانك سيظهر في الأعلى دائماً ويصل لآلاف المشترين' : 'Your ad will always appear at the top'}
+          </div>
+          {loading ? (
+            <div style={{ color: '#9ca3af', fontSize: 14 }}>⏳ ...</div>
+          ) : price ? (
+            <div style={{ background: '#FFFBEB', border: '1.5px solid #f59e0b', borderRadius: 12, padding: '12px 20px', marginBottom: 20 }}>
+              <div style={{ fontSize: 12, color: '#92400e', marginBottom: 4 }}>
+                {lang === 'ar' ? 'رسوم الإعلان المميز' : 'Featured Ad Price'}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#f59e0b' }}>
+                {Number(price).toLocaleString()} <span style={{ fontSize: 14, fontWeight: 400, color: '#92400e' }}>{currency}</span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: '#f3f4f6', borderRadius: 12, padding: '12px 20px', marginBottom: 20, fontSize: 13, color: '#6b7280' }}>
+              {lang === 'ar' ? 'تواصل مع الأدمن للاستفسار عن السعر' : 'Contact admin for pricing'}
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <a href={waLink} target="_blank" rel="noreferrer"
+            style={{ background: '#25D366', color: 'white', borderRadius: 12, padding: '13px 0', fontSize: 15, fontWeight: 700, textAlign: 'center', textDecoration: 'none', display: 'block' }}
+          >
+            💬 {lang === 'ar' ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
+          </a>
+          <button onClick={() => { onConfirm(); onClose() }}
+            style={{ background: '#f59e0b', color: 'white', border: 'none', borderRadius: 12, padding: '13px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+          >
+            ✓ {lang === 'ar' ? 'تفعيل مجاناً (تجريبي)' : 'Activate Free (Trial)'}
+          </button>
+          <button onClick={onClose}
+            style={{ background: 'transparent', border: '1.5px solid #e5e7eb', color: '#6b7280', borderRadius: 12, padding: '11px 0', fontSize: 14, cursor: 'pointer' }}
+          >
+            {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function PillSelect({ options, value, onChange }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -217,7 +288,6 @@ function FeaturedStrip({ listings, currency, lang, dark, onDelete }) {
         </div>
         <div style={{ fontSize: 11, color: '#9ca3af' }}>{featured.length} {lang==='ar'?'إعلان':'ad'}</div>
       </div>
-      {/* ✅ سلايدر أفقي — عرض 160px للبطاقة */}
       <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {featured.map(l => (
           <div key={l.id} style={{ position: 'relative', flexShrink: 0, width: 160 }}>
@@ -241,7 +311,6 @@ function HorizontalSection({ section, listings, currency, lang, dark, onSeeAll, 
         lang={lang}
         dark={dark}
       />
-      {/* ✅ سلايدر أفقي — عرض 160px للبطاقة */}
       <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
         {listings.slice(0, 10).map(l => (
           <div key={l.id} style={{ flexShrink: 0, width: 160 }}>
@@ -292,6 +361,7 @@ export default function Home() {
   const [carBody,         setCarBody]         = useState('')
   const [carColor,        setCarColor]        = useState('')
   const [isFeatured,      setIsFeatured]      = useState(false)
+  const [showFeaturedModal, setShowFeaturedModal] = useState(false)
 
   const [imageUrls,      setImageUrls]      = useState([])
   const [imageUploading, setImageUploading] = useState(false)
@@ -309,26 +379,21 @@ export default function Home() {
   const bg = darkMode ? '#0f172a' : '#f8f9fa'
 
   const SEED_LISTINGS = [
-    // 🚗 سيارات
     { id: 's1', type: 'car', emoji: '🚗', title: 'تويوتا كامري 2021', location: 'تونس العاصمة', price: 45000, time: 'منذ ساعة', tags: [], featured: true, country: 'tn', description: 'سيارة بحالة ممتازة، مالك واحد، كل الخدمات مكتملة', phone: '+21650000001', whatsapp: '+21650000001', images: ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400'], car_make: 'تويوتا', car_model: 'كامري', car_year: '2021', car_mileage: '45000', car_fuel: 'petrol', car_gearbox: 'auto', car_condition: 'excellent', car_body: 'sedan', car_color: 'أبيض' },
     { id: 's2', type: 'car', emoji: '🚗', title: 'هيونداي توسان 2020', location: 'صفاقس', price: 52000, time: 'منذ 3 ساعات', tags: [], featured: false, country: 'tn', description: 'SUV بحالة جيدة جداً، فتحة سقف، كاميرا خلفية', phone: '+21650000002', whatsapp: '+21650000002', images: ['https://images.unsplash.com/photo-1629897048514-3dd7414fe72a?w=400'], car_make: 'هيونداي', car_model: 'توسان', car_year: '2020', car_mileage: '62000', car_fuel: 'diesel', car_gearbox: 'auto', car_condition: 'very_good', car_body: 'suv', car_color: 'رمادي' },
     { id: 's3', type: 'car', emoji: '🚗', title: 'رينو كليو 2019', location: 'سوسة', price: 28000, time: 'منذ 5 ساعات', tags: [], featured: false, country: 'tn', description: 'سيارة اقتصادية ممتازة للمدينة، استهلاك منخفض', phone: '+21650000003', whatsapp: '+21650000003', images: ['https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400'], car_make: 'رينو', car_model: 'كليو', car_year: '2019', car_mileage: '78000', car_fuel: 'petrol', car_gearbox: 'manual', car_condition: 'good', car_body: 'hatch', car_color: 'أحمر' },
     { id: 's4', type: 'car', emoji: '🚗', title: 'فولكسفاغن جولف 2022', location: 'بنزرت', price: 58000, time: 'أمس', tags: [], featured: true, country: 'dz', description: 'جولف 8 بمواصفات عالية، كامل الإكسسوارات', phone: '+21361000001', whatsapp: '+21361000001', images: ['https://images.unsplash.com/photo-1471444928139-48c5bf5173f8?w=400'], car_make: 'فولكسفاغن', car_model: 'جولف', car_year: '2022', car_mileage: '18000', car_fuel: 'petrol', car_gearbox: 'auto', car_condition: 'excellent', car_body: 'hatch', car_color: 'أسود' },
-    // 🔑 تأجير سيارات
     { id: 's5', type: 'rent', emoji: '🔑', title: 'مرسيدس C200 للإيجار', location: 'تونس العاصمة', price: 300, time: 'منذ ساعتين', tags: [], featured: true, country: 'tn', description: 'سيارة فاخرة للإيجار اليومي، مع سائق أو بدون', phone: '+21650000005', whatsapp: '+21650000005', images: ['https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400'], car_make: 'مرسيدس', car_model: 'C200', car_year: '2023', car_mileage: '0', car_fuel: 'petrol', car_gearbox: 'auto' },
     { id: 's6', type: 'rent', emoji: '🔑', title: 'كيا سبورتاج للإيجار', location: 'المنستير', price: 150, time: 'منذ يوم', tags: [], featured: false, country: 'tn', description: 'إيجار أسبوعي وشهري متاح، تسليم للمطار', phone: '+21650000006', whatsapp: '+21650000006', images: ['https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400'], car_make: 'كيا', car_model: 'سبورتاج', car_year: '2022', car_mileage: '0', car_fuel: 'petrol', car_gearbox: 'auto' },
-    // 📱 إلكترونيات
     { id: 's7', type: 'electronics', emoji: '💻', subcategory: 'elec_mobile', phone_brand: 'apple', title: 'iPhone 15 Pro Max 256GB', location: 'تونس العاصمة', price: 4200, time: 'منذ ساعة', tags: [], featured: true, country: 'tn', description: 'آيفون 15 برو ماكس جديد، ضمان سنة، كل الملحقات', phone: '+21650000007', whatsapp: '+21650000007', images: ['https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400'] },
     { id: 's8', type: 'electronics', emoji: '💻', subcategory: 'elec_mobile', phone_brand: 'samsung', title: 'Samsung Galaxy S24 Ultra', location: 'صفاقس', price: 3800, time: 'منذ 3 ساعات', tags: [], featured: false, country: 'tn', description: 'سامسونج S24 الترا، قلم S-Pen، كاميرا 200MP', phone: '+21650000008', whatsapp: '+21650000008', images: ['https://images.unsplash.com/photo-1706439136010-3e9af8a5ed07?w=400'] },
     { id: 's9', type: 'electronics', emoji: '💻', subcategory: 'elec_laptop', title: 'MacBook Pro M3 2024', location: 'تونس العاصمة', price: 6500, time: 'منذ 6 ساعات', tags: [], featured: false, country: 'tn', description: 'ماك بوك برو M3، 16GB RAM، 512GB SSD، كالجديد', phone: '+21650000009', whatsapp: '+21650000009', images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400'] },
     { id: 's10', type: 'electronics', emoji: '💻', subcategory: 'elec_tv', title: 'Samsung QLED 65 بوصة', location: 'سوسة', price: 2800, time: 'أمس', tags: [], featured: false, country: 'tn', description: 'تلفزيون سامسونج QLED 4K، سمارت، بحالة ممتازة', phone: '+21650000010', whatsapp: '+21650000010', images: ['https://images.unsplash.com/photo-1593359677879-a4bb92f829e1?w=400'] },
     { id: 's11', type: 'electronics', emoji: '💻', subcategory: 'elec_gaming', title: 'PlayStation 5 + جهازين تحكم', location: 'تونس العاصمة', price: 1800, time: 'منذ يومين', tags: [], featured: true, country: 'dz', description: 'PS5 بحالة ممتازة، مع 5 ألعاب، جهازين تحكم', phone: '+21361000002', whatsapp: '+21361000002', images: ['https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400'] },
-    // 🏠 عقارات
     { id: 's12', type: 'real', emoji: '🏠', subcategory: 'real_res_sale', title: 'شقة 3 غرف للبيع - حي النصر', location: 'تونس العاصمة', price: 280000, time: 'منذ ساعتين', tags: [], featured: true, country: 'tn', description: 'شقة واسعة 120م², 3 غرف نوم، صالة، مطبخ مجهز، موقف سيارة', phone: '+21650000012', whatsapp: '+21650000012', images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'] },
     { id: 's13', type: 'real', emoji: '🏠', subcategory: 'real_res_rent', title: 'شقة مفروشة للإيجار', location: 'المرسى', price: 1200, time: 'منذ 4 ساعات', tags: [], featured: false, country: 'tn', description: 'شقة مفروشة بالكامل، قريبة من البحر، إنترنت مجاني', phone: '+21650000013', whatsapp: '+21650000013', images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400'] },
     { id: 's14', type: 'real', emoji: '🏠', subcategory: 'real_daily', title: 'فيلا للإيجار اليومي - الحمامات', location: 'الحمامات', price: 500, time: 'منذ يوم', tags: [], featured: true, country: 'tn', description: 'فيلا فاخرة مع مسبح خاص، 4 غرف نوم، مطلة على البحر', phone: '+21650000014', whatsapp: '+21650000014', images: ['https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400'] },
     { id: 's15', type: 'real', emoji: '🏠', subcategory: 'real_land', title: 'أرض للبيع - منطقة صناعية', location: 'بن عروس', price: 180000, time: 'منذ 3 أيام', tags: [], featured: false, country: 'tn', description: 'أرض 500م² بموقع استراتيجي، قريبة من الطريق السريع', phone: '+21650000015', whatsapp: '+21650000015', images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'] },
-    // 🔧 قطع غيار
     { id: 's16', type: 'parts', emoji: '🔧', title: 'كفرات ميشلان 205/55R16 جديدة', location: 'تونس العاصمة', price: 800, time: 'منذ ساعة', tags: [], featured: false, country: 'tn', description: '4 كفرات ميشلان جديدة، مقاس 205/55R16', phone: '+21650000016', whatsapp: '+21650000016', images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'] },
     { id: 's17', type: 'parts', emoji: '🔧', title: 'كاميرا خلفية تويوتا كامري', location: 'صفاقس', price: 120, time: 'منذ 5 ساعات', tags: [], featured: false, country: 'tn', description: 'كاميرا خلفية أصلية لتويوتا كامري 2018-2022', phone: '+21650000017', whatsapp: '+21650000017', images: ['https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400'] },
     { id: 's18', type: 'parts', emoji: '🔧', title: 'بطارية بوش 70 أمبير', location: 'سوسة', price: 280, time: 'أمس', tags: [], featured: false, country: 'tn', description: 'بطارية بوش أصلية 70 أمبير، ضمان سنتين', phone: '+21650000018', whatsapp: '+21650000018', images: ['https://images.unsplash.com/photo-1609592806596-b2a1b5e98e1a?w=400'] },
@@ -431,14 +496,8 @@ export default function Home() {
       const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
       const { error } = await supabase.storage
         .from('listings')
-        .upload(path, blob, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType,
-        })
-      if (error) {
-        return null
-      }
+        .upload(path, blob, { cacheControl: '3600', upsert: true, contentType })
+      if (error) return null
       const { data: urlData } = supabase.storage.from('listings').getPublicUrl(path)
       return urlData.publicUrl
     } catch (err) {
@@ -451,29 +510,16 @@ export default function Home() {
     const uploaded = []
     try {
       await Camera.requestPermissions({ permissions: ['camera', 'photos'] })
-
-      const photo = await Camera.getPhoto({
-        quality: 85,
-        allowEditing: false,
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Camera,
-        saveToGallery: true,
-      })
-
+      const photo = await Camera.getPhoto({ quality: 85, allowEditing: false, resultType: CameraResultType.Base64, source: CameraSource.Camera, saveToGallery: true })
       const base64Data = photo.base64String
       const byteCharacters = atob(base64Data)
       const byteNumbers = new Array(byteCharacters.length)
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i)
-      }
+      for (let i = 0; i < byteCharacters.length; i++) { byteNumbers[i] = byteCharacters.charCodeAt(i) }
       const byteArray = new Uint8Array(byteNumbers)
       const blob = new Blob([byteArray], { type: 'image/jpeg' })
-
       const url = await uploadBlobToSupabase(blob, 'jpg')
       if (url) uploaded.push(url)
-
-    } catch (err) {
-    }
+    } catch (err) {}
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
   }
@@ -483,12 +529,7 @@ export default function Home() {
     const uploaded = []
     try {
       await Camera.requestPermissions({ permissions: ['photos'] })
-
-      const result = await Camera.pickImages({
-        quality: 85,
-        limit: 5,
-      })
-
+      const result = await Camera.pickImages({ quality: 85, limit: 5 })
       for (const photo of result.photos) {
         const response = await fetch(photo.webPath)
         const blob = await response.blob()
@@ -496,9 +537,7 @@ export default function Home() {
         const url = await uploadBlobToSupabase(blob, ext)
         if (url) uploaded.push(url)
       }
-    } catch (err) {
-      console.error('Gallery error:', err)
-    }
+    } catch (err) { console.error('Gallery error:', err) }
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
   }
@@ -513,9 +552,7 @@ export default function Home() {
         const url = await uploadBlobToSupabase(file, ext)
         if (url) uploaded.push(url)
       }
-    } catch (err) {
-      console.error('Web upload error:', err)
-    }
+    } catch (err) { console.error('Web upload error:', err) }
     setImageUrls(prev => [...prev, ...uploaded])
     setImageUploading(false)
     if (e?.target) e.target.value = ''
@@ -525,9 +562,9 @@ export default function Home() {
 
   const canProceedStep1 = () => {
     if (!category || !region || !price) return false
-    if (isReal        && !subcategory)                              return false
-    if (isElectronics && !subcategory)                              return false
-    if (isMobilePhone && !phoneBrand)                               return false
+    if (isReal        && !subcategory)  return false
+    if (isElectronics && !subcategory)  return false
+    if (isMobilePhone && !phoneBrand)   return false
     if (isCarCategory) return !!(carMake && carYear && carMileage && carFuel && carGearbox)
     return !!title
   }
@@ -650,6 +687,17 @@ export default function Home() {
         onCategoryChange={cat => { setActiveCategory(cat); setSearchQuery('') }}
         onLoginClick={() => setShowProfileModal(true)}
       />
+
+      {/* ─── نافذة الإعلان المميز ─── */}
+      {showFeaturedModal && (
+        <FeaturedModal
+          country={country}
+          currency={currency}
+          lang={lang}
+          onConfirm={() => setIsFeatured(true)}
+          onClose={() => setShowFeaturedModal(false)}
+        />
+      )}
 
       {/* ─── POST MODAL ─── */}
       {showPostModal && (
@@ -788,7 +836,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div onClick={() => setIsFeatured(v => !v)}
+                {/* ─── زر الإعلان المميز المعدّل ─── */}
+                <div
+                  onClick={() => {
+                    if (!isFeatured) {
+                      setShowFeaturedModal(true)
+                    } else {
+                      setIsFeatured(false)
+                    }
+                  }}
                   style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10, background: isFeatured?'#FFFBEB':'#f9fafb', border: `1.5px solid ${isFeatured?'#f59e0b':'#e5e7eb'}`, borderRadius: 10, padding: '10px 14px', cursor: 'pointer' }}
                 >
                   <div style={{ width: 20, height: 20, borderRadius: 6, background: isFeatured?'#f59e0b':'white', border: `2px solid ${isFeatured?'#f59e0b':'#d1d5db'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'white' }}>
@@ -796,7 +852,7 @@ export default function Home() {
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: isFeatured?'#92400e':'#374151' }}>⭐ {lang==='ar'?'إعلان مميز':lang==='fr'?'Annonce Premium':'Featured Ad'}</div>
-                    <div style={{ fontSize: 11, color: '#9ca3af' }}>{lang==='ar'?'يظهر في الأعلى دائماً':'Toujours en haut'}</div>
+                    <div style={{ fontSize: 11, color: '#9ca3af' }}>{lang==='ar'?'يظهر في الأعلى دائماً — اضغط لمعرفة السعر':'Toujours en haut — cliquez pour le prix'}</div>
                   </div>
                 </div>
 
@@ -806,59 +862,31 @@ export default function Home() {
 
             {postStep === 2 && (
               <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={handleWebImageChange}
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleWebImageChange} />
 
                 {Capacitor.isNativePlatform() ? (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                    <div
-                      onClick={!imageUploading ? handleNativeCamera : undefined}
+                    <div onClick={!imageUploading ? handleNativeCamera : undefined}
                       style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
                     >
-                      {imageUploading ? (
-                        <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
-                      ) : (
-                        <>
-                          <div style={{ fontSize: 28, marginBottom: 6 }}>📸</div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'التقاط صورة':lang==='fr'?'Prendre photo':'Take Photo'}</div>
-                          <div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'فتح الكاميرا':'Open Camera'}</div>
-                        </>
+                      {imageUploading ? <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div> : (
+                        <><div style={{ fontSize: 28, marginBottom: 6 }}>📸</div><div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'التقاط صورة':lang==='fr'?'Prendre photo':'Take Photo'}</div><div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'فتح الكاميرا':'Open Camera'}</div></>
                       )}
                     </div>
-                    <div
-                      onClick={!imageUploading ? handleNativeGallery : undefined}
+                    <div onClick={!imageUploading ? handleNativeGallery : undefined}
                       style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: '18px 10px', textAlign: 'center', cursor: imageUploading ? 'not-allowed' : 'pointer', background: '#f9fafb', color: '#9ca3af' }}
                     >
-                      {imageUploading ? (
-                        <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
-                      ) : (
-                        <>
-                          <div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'من الغاليري':lang==='fr'?'Galerie':'From Gallery'}</div>
-                          <div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'اختر حتى 5 صور':'Up to 5 photos'}</div>
-                        </>
+                      {imageUploading ? <div style={{ color: '#E8192C', fontSize: 12 }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div> : (
+                        <><div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div><div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{lang==='ar'?'من الغاليري':lang==='fr'?'Galerie':'From Gallery'}</div><div style={{ fontSize: 10, marginTop: 3, color: '#d1d5db' }}>{lang==='ar'?'اختر حتى 5 صور':'Up to 5 photos'}</div></>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
+                  <div onClick={() => fileInputRef.current?.click()}
                     style={{ border: '2px dashed #d1d5db', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: '#f9fafb', color: '#9ca3af' }}
                   >
-                    {imageUploading ? (
-                      <div style={{ color: '#E8192C' }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div>
-                    ) : (
-                      <>
-                        <div style={{ fontSize: 28, marginBottom: 6 }}>📷</div>
-                        <div style={{ fontSize: 13 }}>{t(lang,'add_photos')}</div>
-                        <div style={{ fontSize: 11, marginTop: 4, color: '#d1d5db' }}>{lang==='ar'?'اضغط لاختيار صور':'Click to choose images'}</div>
-                      </>
+                    {imageUploading ? <div style={{ color: '#E8192C' }}>⏳ {lang==='ar'?'جاري الرفع...':'Uploading...'}</div> : (
+                      <><div style={{ fontSize: 28, marginBottom: 6 }}>📷</div><div style={{ fontSize: 13 }}>{t(lang,'add_photos')}</div><div style={{ fontSize: 11, marginTop: 4, color: '#d1d5db' }}>{lang==='ar'?'اضغط لاختيار صور':'Click to choose images'}</div></>
                     )}
                   </div>
                 )}
