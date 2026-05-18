@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android AAB
 
 on:
   push:
@@ -38,13 +38,13 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK
+      - name: Build AAB
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew bundleRelease
 
-      - name: Upload APK
+      - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: sun-market-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: souqna-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
